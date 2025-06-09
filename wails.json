@@ -1,0 +1,22 @@
+{
+  "$schema": "https://wails.io/schemas/config.v2.json",
+  "name": "proxy-cleaner",
+  "outputfilename": "proxy-cleaner",
+  "frontend:install": "npm install",
+  "frontend:build": "npm run build",
+  "frontend:dev:watcher": "npm run dev",
+  "frontend:dev:serverUrl": "auto",
+  "author": {
+    "name": "ChuwuYo",
+    "email": "s1805948721@gmail.com"
+  },
+  "info": {
+    "companyName": "ChuwuYo",
+    "productName": "Proxy Cleaner",
+    "productVersion": "1.0.0",
+    "icon": "appicon.png",
+    "copyright": "Copyright © 2025 ChuwuYo",
+    "comments": "A tool to quickly clean up Windows system proxy remnants."
+  },
+  "ldflags": "-X main.Version={{.Version}} -X main.Commit={{.Commit}} -X main.BuildTime={{.BuildTime}}"
+}

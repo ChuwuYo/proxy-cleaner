@@ -1,0 +1,42 @@
+# =======================================================
+# Best practice .gitignore for a Wails + Go project
+# =======================================================
+
+# IDE and Editor specific files
+# -------------------------------
+.vscode/
+.idea/
+*.swp
+*~
+
+# OS-specific files
+# -------------------------------
+.DS_Store
+
+# Wails build output
+# -------------------------------
+# Ignore the entire build directory, not just the 'bin' subfolder.
+# This is safer and more comprehensive.
+/build/bin/
+
+# Go dependencies - typically managed by go.mod, not needed here unless vendoring
+# -------------------------------
+
+# Frontend dependencies and build output
+# -------------------------------
+# Node modules folder for the frontend project
+/frontend/node_modules/
+
+# Build artifacts from the frontend (Vite, etc.)
+/frontend/dist/
+
+# Log files
+# -------------------------------
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# Wails internal state files
+# -------------------------------
+*.md5
