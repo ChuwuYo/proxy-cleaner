@@ -4,6 +4,9 @@
 
 ProxyCleaner 是一个基于 Wails 框架开发的桌面应用程序，旨在帮助用户清理代理残留设置。
 
+![image](https://github.com/user-attachments/assets/831e722d-0e24-41c7-bcd9-b63c8791dbd3)
+
+
 ## 主要功能
 
 - **代理清理**：方便地禁用系统代理,清理系统中可能存在的无效或残留代理配置。
