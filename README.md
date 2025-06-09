@@ -16,7 +16,7 @@ ProxyCleaner 是一个基于 Wails 框架开发的桌面应用程序，旨在帮
 
 - Go (1.18 或更高版本)
 - Node.js (推荐 LTS 版本)
-- Wails CLI (通过 `go install github.com/wailsapp/wails/v2/cmd/wails@latest` 安装)
+- Wails CLI (本项目暂为V2版本)
 
 ### 运行项目
 
