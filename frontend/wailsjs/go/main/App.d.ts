@@ -10,6 +10,8 @@ export function FlushDNSCache():Promise<string>;
 
 export function GetBuildInfo():Promise<main.BuildInfo>;
 
+export function GetCurrentLocale():Promise<string>;
+
 export function GetProxyStatus():Promise<main.ProxyStatus>;
 
 export function ResetSystemProxy():Promise<string>;
@@ -19,3 +21,5 @@ export function ResetTCPIP():Promise<string>;
 export function ResetWinsock():Promise<string>;
 
 export function RestartDNSService():Promise<string>;
+
+export function SetLocale(arg1:string):Promise<string>;

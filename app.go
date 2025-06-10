@@ -4,13 +4,63 @@ import (
 	"context"
 	"fmt"
 	"os/exec"
+	"strings"
 
+	"golang.org/x/sys/windows"
 	"golang.org/x/sys/windows/registry"
+
+	"proxy-cleaner/backend/i18n"
 )
+
+// 检查当前进程是否具有管理员权限
+func isAdmin() bool {
+	var sid *windows.SID
+	err := windows.AllocateAndInitializeSid(
+		&windows.SECURITY_NT_AUTHORITY,
+		2,
+		windows.SECURITY_BUILTIN_DOMAIN_RID,
+		windows.DOMAIN_ALIAS_RID_ADMINS,
+		0, 0, 0, 0, 0, 0,
+		&sid)
+	if err != nil {
+		return false
+	}
+	defer windows.FreeSid(sid)
+
+	token := windows.Token(0)
+	member, err := token.IsMember(sid)
+	if err != nil {
+		return false
+	}
+	return member
+}
+
+// 检查命令执行是否需要管理员权限
+func requiresAdmin(command string) bool {
+	adminCommands := []string{
+		"netsh", "net stop", "net start",
+	}
+	for _, cmd := range adminCommands {
+		if strings.Contains(command, cmd) {
+			return true
+		}
+	}
+	return false
+}
 
 // App struct holds application context
 type App struct {
 	ctx context.Context
+}
+
+// GetCurrentLocale 获取当前语言设置
+func (a *App) GetCurrentLocale() string {
+	return i18n.GetCurrentLocale()
+}
+
+// SetLocale 设置当前语言
+func (a *App) SetLocale(locale string) string {
+	return i18n.SetLocale(locale)
 }
 
 // NewApp creates a new App application struct
@@ -21,6 +71,14 @@ func NewApp() *App {
 // startup is called when the app starts.
 func (a *App) startup(ctx context.Context) {
 	a.ctx = ctx
+}
+
+// executeAsAdmin runs a command with elevated privileges
+func executeAsAdmin(command string, args ...string) ([]byte, error) {
+	psCmd := fmt.Sprintf("Start-Process -FilePath '%s' -ArgumentList '%s' -Verb RunAs -Wait -PassThru",
+		command, strings.Join(args, " "))
+	cmd := exec.Command("powershell", "-Command", psCmd)
+	return cmd.CombinedOutput()
 }
 
 // ProxyStatus defines the structure for returning proxy status to the frontend.
@@ -36,7 +94,7 @@ const regKeyPath = `Software\Microsoft\Windows\CurrentVersion\Internet Settings`
 func (a *App) GetProxyStatus() ProxyStatus {
 	key, err := registry.OpenKey(registry.CURRENT_USER, regKeyPath, registry.QUERY_VALUE)
 	if err != nil {
-		return ProxyStatus{Error: "无法打开注册表键: " + err.Error()}
+		return ProxyStatus{Error: i18n.GetMessage(i18n.ErrOpenRegistry, err.Error())}
 	}
 	defer key.Close()
 
@@ -47,8 +105,11 @@ func (a *App) GetProxyStatus() ProxyStatus {
 		proxyEnable = 0
 	}
 
-	// Read proxy server address. Ignore errors as it might not be set.
-	proxyServer, _, _ := key.GetStringValue("ProxyServer")
+	// Read proxy server address with proper error handling
+	proxyServer, _, err := key.GetStringValue("ProxyServer")
+	if err != nil && err != registry.ErrNotExist {
+		return ProxyStatus{Error: i18n.GetMessage(i18n.ErrReadProxyServer, err.Error())}
+	}
 
 	// 如果地址包含 http:// 或 https:// 前缀，则移除
 	if len(proxyServer) > 7 {
@@ -69,7 +130,7 @@ func (a *App) GetProxyStatus() ProxyStatus {
 func setProxyState(enabled bool) error {
 	key, err := registry.OpenKey(registry.CURRENT_USER, regKeyPath, registry.SET_VALUE)
 	if err != nil {
-		return fmt.Errorf("无法打开注册表键进行写入: %v", err)
+		return fmt.Errorf(i18n.GetMessage(i18n.ErrOpenRegistry, err))
 	}
 	defer key.Close()
 
@@ -80,7 +141,7 @@ func setProxyState(enabled bool) error {
 
 	err = key.SetDWordValue("ProxyEnable", dwordValue)
 	if err != nil {
-		return fmt.Errorf("写入注册表值失败: %v", err)
+		return fmt.Errorf(i18n.GetMessage(i18n.ErrWriteRegistry, err))
 	}
 	return nil
 }
@@ -89,9 +150,9 @@ func setProxyState(enabled bool) error {
 func (a *App) DisableProxyDirectly() string {
 	err := setProxyState(false)
 	if err != nil {
-		return fmt.Sprintf("失败: %v", err)
+		return i18n.GetMessage(i18n.ErrGeneric, err)
 	}
-	return "成功: 已通过直接修改注册表关闭系统代理。"
+	return i18n.GetMessage(i18n.SuccessDisableProxy)
 }
 
 // DisableProxyViaPowerShell disables the system proxy using a PowerShell command.
@@ -100,9 +161,9 @@ func (a *App) DisableProxyViaPowerShell() string {
 	output, err := cmd.CombinedOutput()
 	if err != nil {
 		// Combine error message with PowerShell's output for better debugging.
-		return fmt.Sprintf("失败: PowerShell执行出错: %v\n输出: %s", err, string(output))
+		return i18n.GetMessage(i18n.ErrExecutePowerShell, err, string(output))
 	}
-	return "成功: 已通过PowerShell命令关闭系统代理。"
+	return i18n.GetMessage(i18n.SuccessDisableProxyPS)
 }
 
 // ResetSystemProxy 重置系统代理设置
@@ -110,9 +171,9 @@ func (a *App) ResetSystemProxy() string {
 	cmd := exec.Command("netsh", "winhttp", "reset", "proxy")
 	output, err := cmd.CombinedOutput()
 	if err != nil {
-		return fmt.Sprintf("失败: %v\n输出: %s", err, string(output))
+		return i18n.GetMessage(i18n.ErrGeneric, err, string(output))
 	}
-	return "成功: 系统代理已重置。"
+	return i18n.GetMessage(i18n.SuccessResetProxy)
 }
 
 // FlushDNSCache 清除 DNS 缓存
@@ -120,43 +181,56 @@ func (a *App) FlushDNSCache() string {
 	cmd := exec.Command("ipconfig", "/flushdns")
 	output, err := cmd.CombinedOutput()
 	if err != nil {
-		return fmt.Sprintf("失败: %v\n输出: %s", err, string(output))
+		return i18n.GetMessage(i18n.ErrGeneric, err, string(output))
 	}
-	return "成功: DNS 缓存已清除。"
+	return i18n.GetMessage(i18n.SuccessFlushDNS)
 }
 
 // ResetTCPIP 重置 TCP/IP 栈
 func (a *App) ResetTCPIP() string {
-	cmd := exec.Command("netsh", "int", "ip", "reset")
-	output, err := cmd.CombinedOutput()
+	// 使用提升的权限执行命令
+	output, err := executeAsAdmin("netsh", "int", "ip", "reset")
 	if err != nil {
-		return fmt.Sprintf("失败: 重置IP时出错: %v\n输出: %s", err, string(output))
+		return i18n.GetMessage(i18n.ErrResetTCPIP, err, string(output))
 	}
-	return "成功: TCP/IP 栈已重置。"
+	return i18n.GetMessage(i18n.SuccessResetTCPIP)
 }
 
 // ResetWinsock 重置 Winsock 协议
 func (a *App) ResetWinsock() string {
-	cmd := exec.Command("netsh", "winsock", "reset")
-	output, err := cmd.CombinedOutput()
+	// 使用提升的权限执行命令
+	output, err := executeAsAdmin("netsh", "winsock", "reset")
 	if err != nil {
-		return fmt.Sprintf("失败: 重置Winsock时出错: %v\n输出: %s", err, string(output))
+		return i18n.GetMessage(i18n.ErrResetWinsock, err, string(output))
 	}
-	return "成功: Winsock 协议已重置。"
+	return i18n.GetMessage(i18n.SuccessResetWinsock)
 }
 
 // RestartDNSService 重启 DNS 客户端缓存服务
 func (a *App) RestartDNSService() string {
-	cmd1 := exec.Command("net", "stop", "dnscache")
-	out1, err1 := cmd1.CombinedOutput()
+	// 先检查服务是否在运行
+	checkCmd := exec.Command("sc", "query", "dnscache")
+	checkOutput, _ := checkCmd.CombinedOutput()
+	isRunning := strings.Contains(string(checkOutput), "RUNNING")
+
+	// 停止服务
+	out1, err1 := executeAsAdmin("net", "stop", "dnscache")
 	if err1 != nil {
-		return fmt.Sprintf("失败: 停止DNS服务时出错: %v\n输出: %s", err1, string(out1))
+		if isRunning {
+			return i18n.GetMessage(i18n.ErrStopDNS, err1, string(out1))
+		}
+		// 如果服务本来就没在运行，则继续尝试启动
+	}
+
+	// 启动服务
+	out2, err2 := executeAsAdmin("net", "start", "dnscache")
+	if err2 != nil {
+		// 如果启动失败且服务之前在运行，尝试恢复原状态
+		if isRunning {
+			executeAsAdmin("net", "start", "dnscache") // 忽略恢复错误，因为已经处于错误状态
+		}
+		return i18n.GetMessage(i18n.ErrStartDNS, err2, string(out2))
 	}
 	
-	cmd2 := exec.Command("net", "start", "dnscache")
-	out2, err2 := cmd2.CombinedOutput()
-	if err2 != nil {
-		return fmt.Sprintf("失败: 启动DNS服务时出错: %v\n输出: %s", err2, string(out2))
-	}
-	return "成功: DNS 客户端缓存服务已重启。"
+	return i18n.GetMessage(i18n.SuccessRestartDNS)
 }

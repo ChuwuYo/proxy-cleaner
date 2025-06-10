@@ -18,6 +18,10 @@ export function GetBuildInfo() {
   return window['go']['main']['App']['GetBuildInfo']();
 }
 
+export function GetCurrentLocale() {
+  return window['go']['main']['App']['GetCurrentLocale']();
+}
+
 export function GetProxyStatus() {
   return window['go']['main']['App']['GetProxyStatus']();
 }
@@ -36,4 +40,8 @@ export function ResetWinsock() {
 
 export function RestartDNSService() {
   return window['go']['main']['App']['RestartDNSService']();
+}
+
+export function SetLocale(arg1) {
+  return window['go']['main']['App']['SetLocale'](arg1);
 }
