@@ -32,10 +32,10 @@
           </n-card>
         </n-gi>
         <n-gi>
-          <n-card title="执行操作">
+          <n-card title="ProxyEnable 禁用操作">
             <n-space vertical style="width: 100%;">
               <n-button @click="runDisableProxyDirectly" type="primary" block>1. 直接修改注册表 (推荐)</n-button>
-              <n-button @click="runDisableProxyViaPS" type="info" block>2. PowerShell修改</n-button>
+              <n-button @click="runDisableProxyViaPS" type="info" block>2. PowerShell修改注册表</n-button>
             </n-space>
           </n-card>
         </n-gi>
@@ -114,7 +114,7 @@ const handleOperation = async (operationFunc, startMsg) => {
 };
 
 const runDisableProxyDirectly = () => handleOperation(DisableProxyDirectly, '正在尝试直接修改注册表...');
-const runDisableProxyViaPS = () => handleOperation(DisableProxyViaPowerShell, '正在尝试通过PowerShell修改...');
+const runDisableProxyViaPS = () => handleOperation(DisableProxyViaPowerShell, '正在尝试通过PowerShell修改注册表...');
 
 onMounted(() => {
   refreshStatus();
