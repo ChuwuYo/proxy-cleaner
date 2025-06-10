@@ -10,10 +10,30 @@ export function DisableProxyViaPowerShell() {
   return window['go']['main']['App']['DisableProxyViaPowerShell']();
 }
 
+export function FlushDNSCache() {
+  return window['go']['main']['App']['FlushDNSCache']();
+}
+
 export function GetBuildInfo() {
   return window['go']['main']['App']['GetBuildInfo']();
 }
 
 export function GetProxyStatus() {
   return window['go']['main']['App']['GetProxyStatus']();
+}
+
+export function ResetSystemProxy() {
+  return window['go']['main']['App']['ResetSystemProxy']();
+}
+
+export function ResetTCPIP() {
+  return window['go']['main']['App']['ResetTCPIP']();
+}
+
+export function ResetWinsock() {
+  return window['go']['main']['App']['ResetWinsock']();
+}
+
+export function RestartDNSService() {
+  return window['go']['main']['App']['RestartDNSService']();
 }

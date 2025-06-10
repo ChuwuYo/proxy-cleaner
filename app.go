@@ -50,6 +50,15 @@ func (a *App) GetProxyStatus() ProxyStatus {
 	// Read proxy server address. Ignore errors as it might not be set.
 	proxyServer, _, _ := key.GetStringValue("ProxyServer")
 
+	// 如果地址包含 http:// 或 https:// 前缀，则移除
+	if len(proxyServer) > 7 {
+		if proxyServer[:7] == "http://" {
+			proxyServer = proxyServer[7:]
+		} else if len(proxyServer) > 8 && proxyServer[:8] == "https://" {
+			proxyServer = proxyServer[8:]
+		}
+	}
+
 	return ProxyStatus{
 		Enabled: proxyEnable == 1,
 		Server:  proxyServer,
@@ -94,4 +103,60 @@ func (a *App) DisableProxyViaPowerShell() string {
 		return fmt.Sprintf("失败: PowerShell执行出错: %v\n输出: %s", err, string(output))
 	}
 	return "成功: 已通过PowerShell命令关闭系统代理。"
+}
+
+// ResetSystemProxy 重置系统代理设置
+func (a *App) ResetSystemProxy() string {
+	cmd := exec.Command("netsh", "winhttp", "reset", "proxy")
+	output, err := cmd.CombinedOutput()
+	if err != nil {
+		return fmt.Sprintf("失败: %v\n输出: %s", err, string(output))
+	}
+	return "成功: 系统代理已重置。"
+}
+
+// FlushDNSCache 清除 DNS 缓存
+func (a *App) FlushDNSCache() string {
+	cmd := exec.Command("ipconfig", "/flushdns")
+	output, err := cmd.CombinedOutput()
+	if err != nil {
+		return fmt.Sprintf("失败: %v\n输出: %s", err, string(output))
+	}
+	return "成功: DNS 缓存已清除。"
+}
+
+// ResetTCPIP 重置 TCP/IP 栈
+func (a *App) ResetTCPIP() string {
+	cmd := exec.Command("netsh", "int", "ip", "reset")
+	output, err := cmd.CombinedOutput()
+	if err != nil {
+		return fmt.Sprintf("失败: 重置IP时出错: %v\n输出: %s", err, string(output))
+	}
+	return "成功: TCP/IP 栈已重置。"
+}
+
+// ResetWinsock 重置 Winsock 协议
+func (a *App) ResetWinsock() string {
+	cmd := exec.Command("netsh", "winsock", "reset")
+	output, err := cmd.CombinedOutput()
+	if err != nil {
+		return fmt.Sprintf("失败: 重置Winsock时出错: %v\n输出: %s", err, string(output))
+	}
+	return "成功: Winsock 协议已重置。"
+}
+
+// RestartDNSService 重启 DNS 客户端缓存服务
+func (a *App) RestartDNSService() string {
+	cmd1 := exec.Command("net", "stop", "dnscache")
+	out1, err1 := cmd1.CombinedOutput()
+	if err1 != nil {
+		return fmt.Sprintf("失败: 停止DNS服务时出错: %v\n输出: %s", err1, string(out1))
+	}
+	
+	cmd2 := exec.Command("net", "start", "dnscache")
+	out2, err2 := cmd2.CombinedOutput()
+	if err2 != nil {
+		return fmt.Sprintf("失败: 启动DNS服务时出错: %v\n输出: %s", err2, string(out2))
+	}
+	return "成功: DNS 客户端缓存服务已重启。"
 }
