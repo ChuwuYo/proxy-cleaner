@@ -1,6 +1,9 @@
 package i18n
 
-import "fmt"
+import (
+	"fmt"
+	"golang.org/x/sys/windows/registry"
+)
 
 // MessageKey 用于标识消息类型
 type MessageKey string
@@ -68,7 +71,7 @@ var messages = map[string]map[MessageKey]string{
 	},
 }
 
-var currentLocale = "zh"
+var currentLocale = getSystemLocale()
 
 // GetCurrentLocale 获取当前语言设置
 func GetCurrentLocale() string {
@@ -82,6 +85,25 @@ func SetLocale(locale string) string {
 		return currentLocale
 	}
 	return "zh" // 默认返回中文
+}
+
+// getSystemLocale 获取系统语言设置
+func getSystemLocale() string {
+	key, err := registry.OpenKey(registry.CURRENT_USER, `Control Panel\International`, registry.QUERY_VALUE)
+	if err != nil {
+		return "zh" // 默认中文
+	}
+	defer key.Close()
+
+	locale, _, err := key.GetStringValue("LocaleName")
+	if err != nil {
+		return "zh"
+	}
+
+	if locale == "zh-CN" || locale == "zh-TW" || locale == "zh-HK" {
+		return "zh"
+	}
+	return "en"
 }
 
 // GetMessage 获取指定key的消息

@@ -78,6 +78,7 @@ func executeAsAdmin(command string, args ...string) ([]byte, error) {
 	psCmd := fmt.Sprintf("Start-Process -FilePath '%s' -ArgumentList '%s' -Verb RunAs -Wait -PassThru",
 		command, strings.Join(args, " "))
 	cmd := exec.Command("powershell", "-Command", psCmd)
+	cmd.SysProcAttr = &windows.SysProcAttr{HideWindow: true}
 	return cmd.CombinedOutput()
 }
 
@@ -158,6 +159,7 @@ func (a *App) DisableProxyDirectly() string {
 // DisableProxyViaPowerShell disables the system proxy using a PowerShell command.
 func (a *App) DisableProxyViaPowerShell() string {
 	cmd := exec.Command("powershell", "-Command", "Set-ItemProperty -Path 'HKCU:\\Software\\Microsoft\\Windows\\CurrentVersion\\Internet Settings' -Name ProxyEnable -Value 0")
+	cmd.SysProcAttr = &windows.SysProcAttr{HideWindow: true}
 	output, err := cmd.CombinedOutput()
 	if err != nil {
 		// Combine error message with PowerShell's output for better debugging.
@@ -169,6 +171,7 @@ func (a *App) DisableProxyViaPowerShell() string {
 // ResetSystemProxy 重置系统代理设置
 func (a *App) ResetSystemProxy() string {
 	cmd := exec.Command("netsh", "winhttp", "reset", "proxy")
+	cmd.SysProcAttr = &windows.SysProcAttr{HideWindow: true}
 	output, err := cmd.CombinedOutput()
 	if err != nil {
 		return i18n.GetMessage(i18n.ErrGeneric, err, string(output))
@@ -179,6 +182,7 @@ func (a *App) ResetSystemProxy() string {
 // FlushDNSCache 清除 DNS 缓存
 func (a *App) FlushDNSCache() string {
 	cmd := exec.Command("ipconfig", "/flushdns")
+	cmd.SysProcAttr = &windows.SysProcAttr{HideWindow: true}
 	output, err := cmd.CombinedOutput()
 	if err != nil {
 		return i18n.GetMessage(i18n.ErrGeneric, err, string(output))
@@ -210,6 +214,7 @@ func (a *App) ResetWinsock() string {
 func (a *App) RestartDNSService() string {
 	// 先检查服务是否在运行
 	checkCmd := exec.Command("sc", "query", "dnscache")
+	checkCmd.SysProcAttr = &windows.SysProcAttr{HideWindow: true}
 	checkOutput, _ := checkCmd.CombinedOutput()
 	isRunning := strings.Contains(string(checkOutput), "RUNNING")
 

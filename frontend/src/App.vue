@@ -9,11 +9,6 @@
         <n-space vertical :size="12">
           <n-space justify="center" align="center">
             <n-h1 style="margin-bottom: 0;">{{ $t('title') }}</n-h1>
-            <n-space>
-              <n-button quaternary circle size="small" @click="toggleLocale">
-                {{ currentLocale === 'zh' ? 'EN' : '中' }}
-              </n-button>
-            </n-space>
           </n-space>
           <n-p depth="3">{{ $t('subtitle') }}</n-p>
         </n-space>
