@@ -126,8 +126,8 @@ const refreshStatus = async () => {
     const result = await GetProxyStatus();
     if (result.error) {
       status.error = result.error;
-      addLog(`获取状态失败: ${result.error}`);
-      message.error(`获取状态失败: ${result.error}`);
+      addLog(t('status.error', { msg: result.error }));
+      message.error(t('status.error', { msg: result.error }));
     } else {
       status.error = '';  // 清除错误状态
       status.enabled = result.enabled;
@@ -151,13 +151,13 @@ const handleOperation = async (operationFunc, startMsg) => {
   try {
     const result = await operationFunc();
     addLog(result);
-    if (result.startsWith('失败')) {
+    if (result.startsWith(t('common.failed')) || result.includes(t('common.error'))) {
       message.error(result, { duration: 5000 });
     } else {
       message.success(result, { duration: 5000 });
     }
   } catch (e) {
-    message.error(`操作执行异常: ${e}`, { duration: 5000 });
+    message.error(t('logs.backendError', { msg: e }), { duration: 5000 });
   } finally {
     loadingMessage.destroy();
     await refreshStatus();

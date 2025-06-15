@@ -33,13 +33,18 @@ import { useI18n } from 'vue-i18n';
 import { NConfigProvider, NMessageProvider, NGlobalStyle, lightTheme, darkTheme, NButton, NIcon } from 'naive-ui';
 import { Sunny, Moon, LanguageOutline } from '@vicons/ionicons5';
 import App from './App.vue';
+import { SetLocale } from '../wailsjs/go/main/App';
 
 // 获取i18n实例
 const { locale: currentLocale } = useI18n();
 
 // 切换语言函数
-const toggleLocale = () => {
-  currentLocale.value = currentLocale.value === 'zh' ? 'en' : 'zh';
+const toggleLocale = async () => {
+  const newLocale = currentLocale.value === 'zh' ? 'en' : 'zh';
+  // 通过API设置后端语言
+  const result = await SetLocale(newLocale);
+  // 设置前端语言
+  currentLocale.value = result;
 }; // 引入主应用组件
 
 // 定义主题名称，默认为浅色主题
