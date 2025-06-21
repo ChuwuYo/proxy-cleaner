@@ -56,6 +56,10 @@ func main() {
 			WindowIsTranslucent: false,
 			DisableWindowIcon:   false,
 		},
+		MinWidth:  600,
+		MinHeight: 500,
+		MaxWidth:  2560,
+		MaxHeight: 1600,
 	})
 
 	if err != nil {

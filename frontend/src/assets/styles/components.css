@@ -3,7 +3,7 @@
 
 /* 固定按钮基础样式 */
 .fixed-button {
-  position: fixed;
+  position: absolute;
   top: var(--spacing-lg);
   z-index: var(--z-index-fixed);
   width: var(--button-size-sm);

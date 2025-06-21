@@ -27,6 +27,12 @@ export default {
     resetWinsock: "重置 Winsock 协议",
     restartDNS: "重启 DNS 服务"
   },
+  connectivity: {
+    title: "网络连通性测试",
+    placeholder: "输入要测试的主机地址（默认：bing.com）",
+    test: "开始测试",
+    emptyHost: "请输入要测试的主机地址"
+  },
   logs: {
     title: "运行日志",
     refreshing: "正在获取代理状态...",
@@ -40,7 +46,8 @@ export default {
     flushingDNS: "正在清除 DNS 缓存...",
     resettingTCPIP: "正在重置 TCP/IP 栈...",
     resettingWinsock: "正在重置 Winsock 协议...",
-    restartingDNS: "正在重启 DNS 服务..."
+    restartingDNS: "正在重启 DNS 服务...",
+    pingTesting: "正在测试连接到 {host}..."
   },
   common: {
     success: "成功",

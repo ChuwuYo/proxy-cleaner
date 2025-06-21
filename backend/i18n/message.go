@@ -18,6 +18,8 @@ const (
 	ErrStartDNS         MessageKey = "err_start_dns"
 	ErrResetTCPIP       MessageKey = "err_reset_tcpip"
 	ErrResetWinsock     MessageKey = "err_reset_winsock"
+	ErrPingTest         MessageKey = "err_ping_test"
+	ErrPingFailed       MessageKey = "err_ping_failed"
 	ErrGeneric          MessageKey = "err_generic"
 
 	// 成功消息
@@ -28,6 +30,8 @@ const (
 	SuccessResetTCPIP      MessageKey = "success_reset_tcpip"
 	SuccessResetWinsock    MessageKey = "success_reset_winsock"
 	SuccessRestartDNS      MessageKey = "success_restart_dns"
+	SuccessPingTest        MessageKey = "success_ping_test"
+	SuccessPingTestWithDelay MessageKey = "success_ping_test_with_delay"
 )
 
 var messages = map[string]map[MessageKey]string{
@@ -40,6 +44,8 @@ var messages = map[string]map[MessageKey]string{
 		ErrStartDNS:          "启动DNS服务时出错: %v\n输出: %s",
 		ErrResetTCPIP:        "重置IP时出错: %v\n输出: %s",
 		ErrResetWinsock:      "重置Winsock时出错: %v\n输出: %s",
+		ErrPingTest:          "Ping测试执行失败 %s: %v",
+		ErrPingFailed:        "Ping测试失败: 无法连接到 %s",
 		ErrGeneric:           "失败: %v",
 
 		SuccessDisableProxy:   "成功: 已通过直接修改注册表关闭系统代理。",
@@ -49,6 +55,8 @@ var messages = map[string]map[MessageKey]string{
 		SuccessResetTCPIP:     "成功: TCP/IP 栈已重置。警告：此操作可能需要重启计算机才能生效。",
 		SuccessResetWinsock:   "成功: Winsock 协议已重置。警告：此操作可能需要重启计算机才能生效。",
 		SuccessRestartDNS:     "成功: DNS 客户端缓存服务已重启。",
+		SuccessPingTest:       "成功: 网络连通性正常，可以访问 %s",
+		SuccessPingTestWithDelay: "成功: 网络连通性正常，可以访问 %s，延迟: %s",
 	},
 	"en": {
 		ErrOpenRegistry:       "Failed to open registry key: %v",
@@ -59,6 +67,8 @@ var messages = map[string]map[MessageKey]string{
 		ErrStartDNS:          "Error starting DNS service: %v\nOutput: %s",
 		ErrResetTCPIP:        "Error resetting IP: %v\nOutput: %s",
 		ErrResetWinsock:      "Error resetting Winsock: %v\nOutput: %s",
+		ErrPingTest:          "Ping test execution failed %s: %v",
+		ErrPingFailed:        "Ping test failed: Cannot connect to %s",
 		ErrGeneric:           "Failed: %v",
 
 		SuccessDisableProxy:   "Success: System proxy disabled via direct registry modification.",
@@ -68,6 +78,8 @@ var messages = map[string]map[MessageKey]string{
 		SuccessResetTCPIP:     "Success: TCP/IP stack reset. Warning: This operation may require a computer restart.",
 		SuccessResetWinsock:   "Success: Winsock protocol reset. Warning: This operation may require a computer restart.",
 		SuccessRestartDNS:     "Success: DNS client cache service restarted.",
+		SuccessPingTest:       "Success: Network connectivity is normal, can access %s",
+		SuccessPingTestWithDelay: "Success: Network connectivity is normal, can access %s, delay: %s",
 	},
 }
 

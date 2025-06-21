@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	"os/exec"
+	"regexp"
 	"strings"
 
 	"golang.org/x/sys/windows"
@@ -238,4 +239,50 @@ func (a *App) RestartDNSService() string {
 	}
 	
 	return i18n.GetMessage(i18n.SuccessRestartDNS)
+}
+
+// PingTest 执行ping连通性测试
+func (a *App) PingTest(host string) string {
+	if host == "" {
+		host = "bing.com"
+	}
+	
+	cmd := exec.Command("ping", "-n", "4", host)
+	cmd.SysProcAttr = &windows.SysProcAttr{HideWindow: true}
+	output, err := cmd.CombinedOutput()
+	
+	if err != nil {
+		return i18n.GetMessage(i18n.ErrPingTest, host, err.Error())
+	}
+	
+	// 解析ping结果和延迟信息
+	result := string(output)
+	if strings.Contains(result, "TTL=") {
+		// 只匹配包含TTL的响应行中的延迟
+		lines := strings.Split(result, "\n")
+		var delays []string
+		
+		for _, line := range lines {
+			if strings.Contains(line, "TTL=") {
+				// 匹配该行中的延迟，支持 XXXms 和 <XXXms 格式
+				reTime := regexp.MustCompile(`<?([0-9]+)ms`)
+				matches := reTime.FindStringSubmatch(line)
+				if len(matches) > 1 {
+					if strings.Contains(line, "<"+matches[1]+"ms") {
+						delays = append(delays, "<"+matches[1]+"ms")
+					} else {
+						delays = append(delays, matches[1]+"ms")
+					}
+				}
+			}
+		}
+		
+		if len(delays) > 0 {
+			avgDelay := strings.Join(delays, ", ")
+			return i18n.GetMessage(i18n.SuccessPingTestWithDelay, host, avgDelay)
+		}
+		return i18n.GetMessage(i18n.SuccessPingTest, host)
+	} else {
+		return i18n.GetMessage(i18n.ErrPingFailed, host)
+	}
 }

@@ -14,6 +14,8 @@ export function GetCurrentLocale():Promise<string>;
 
 export function GetProxyStatus():Promise<main.ProxyStatus>;
 
+export function PingTest(arg1:string):Promise<string>;
+
 export function ResetSystemProxy():Promise<string>;
 
 export function ResetTCPIP():Promise<string>;

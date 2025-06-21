@@ -78,6 +78,19 @@
         </n-gi>
       </n-grid>
 
+      <!-- 连通性测试 -->
+      <n-card :title="$t('connectivity.title')">
+        <n-space vertical style="width: 100%;">
+          <n-input v-model:value="pingHost" :placeholder="$t('connectivity.placeholder')" />
+          <n-button type="primary" block @click="runPingTest" :loading="pingTesting">
+            {{ $t('connectivity.test') }}
+          </n-button>
+          <n-text v-if="pingResult" :type="pingSuccess ? 'success' : 'error'">
+            {{ pingResult }}
+          </n-text>
+        </n-space>
+      </n-card>
+
       <!-- 日志区域 -->
       <n-card :title="$t('logs.title')">
         <n-log :log="logText" :rows="10" />
@@ -91,11 +104,11 @@ import { ref, onMounted, reactive, computed, watch } from 'vue';
 import { useI18n } from 'vue-i18n';
 import {
   useMessage, NSpace, NCard, NButton, NGrid, NGi,
-  NH1, NP, NTag, NIcon, NLog, NText
+  NH1, NP, NTag, NIcon, NLog, NText, NInput
 } from 'naive-ui';
 import { Refresh as RefreshIcon } from '@vicons/ionicons5';
 import { GetProxyStatus, DisableProxyDirectly, DisableProxyViaPowerShell, ResetSystemProxy,
-  FlushDNSCache, ResetTCPIP, ResetWinsock, RestartDNSService, GetCurrentLocale } from '../wailsjs/go/main/App';
+  FlushDNSCache, ResetTCPIP, ResetWinsock, RestartDNSService, GetCurrentLocale, PingTest } from '../wailsjs/go/main/App';
 
 // useMessage() 的 Provider 在父组件 Root.vue 中
 const message = useMessage();
@@ -105,6 +118,12 @@ const logs = ref([]);
 const status = reactive({ enabled: false, server: '', error: '', isUnknown: false });
 const logText = computed(() => logs.value.join('\n'));
 const currentLocale = computed(() => locale.value);
+
+// 连通性测试相关状态
+const pingHost = ref('bing.com');
+const pingResult = ref('');
+const pingSuccess = ref(false);
+const pingTesting = ref(false);
 
 // 初始化时获取后端语言设置
 onMounted(async () => {
@@ -180,6 +199,39 @@ const runFlushDNSCache = () => handleOperation(FlushDNSCache, t('logs.flushingDN
 const runResetTCPIP = () => handleOperation(ResetTCPIP, t('logs.resettingTCPIP'));
 const runResetWinsock = () => handleOperation(ResetWinsock, t('logs.resettingWinsock'));
 const runRestartDNSService = () => handleOperation(RestartDNSService, t('logs.restartingDNS'));
+
+// 执行ping连通性测试
+const runPingTest = async () => {
+  if (!pingHost.value.trim()) {
+    message.warning(t('connectivity.emptyHost'));
+    return;
+  }
+  
+  pingTesting.value = true;
+  pingResult.value = '';
+  addLog(t('logs.pingTesting', { host: pingHost.value }));
+  
+  try {
+    const result = await PingTest(pingHost.value.trim());
+    pingResult.value = result;
+    pingSuccess.value = result.includes(t('common.success')) || result.includes('Success');
+    addLog(result);
+    
+    if (pingSuccess.value) {
+      message.success(result, { duration: 3000 });
+    } else {
+      message.error(result, { duration: 5000 });
+    }
+  } catch (e) {
+    const errorMsg = t('logs.backendError', { msg: e });
+    pingResult.value = errorMsg;
+    pingSuccess.value = false;
+    addLog(errorMsg);
+    message.error(errorMsg, { duration: 5000 });
+  } finally {
+    pingTesting.value = false;
+  }
+};
 
 </script>
 

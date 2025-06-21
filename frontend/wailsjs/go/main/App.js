@@ -26,6 +26,10 @@ export function GetProxyStatus() {
   return window['go']['main']['App']['GetProxyStatus']();
 }
 
+export function PingTest(arg1) {
+  return window['go']['main']['App']['PingTest'](arg1);
+}
+
 export function ResetSystemProxy() {
   return window['go']['main']['App']['ResetSystemProxy']();
 }

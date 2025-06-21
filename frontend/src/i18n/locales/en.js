@@ -27,6 +27,12 @@ export default {
     resetWinsock: "Reset Winsock Protocol",
     restartDNS: "Restart DNS Service"
   },
+  connectivity: {
+    title: "Network Connectivity Test",
+    placeholder: "Enter host address to test (default: bing.com)",
+    test: "Start Test",
+    emptyHost: "Please enter a host address to test"
+  },
   logs: {
     title: "Operation Logs",
     refreshing: "Getting proxy status...",
@@ -40,7 +46,8 @@ export default {
     flushingDNS: "Flushing DNS cache...",
     resettingTCPIP: "Resetting TCP/IP stack...",
     resettingWinsock: "Resetting Winsock protocol...",
-    restartingDNS: "Restarting DNS service..."
+    restartingDNS: "Restarting DNS service...",
+    pingTesting: "Testing connection to {host}..."
   },
   common: {
     success: "Success",
