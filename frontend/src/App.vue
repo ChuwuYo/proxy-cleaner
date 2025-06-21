@@ -89,7 +89,7 @@ import {
 } from 'naive-ui';
 import { Refresh as RefreshIcon } from '@vicons/ionicons5';
 import { GetProxyStatus, DisableProxyDirectly, DisableProxyViaPowerShell, ResetSystemProxy,
-  FlushDNSCache, ResetTCPIP, ResetWinsock, RestartDNSService, GetCurrentLocale, SetLocale } from '../wailsjs/go/main/App';
+  FlushDNSCache, ResetTCPIP, ResetWinsock, RestartDNSService, GetCurrentLocale } from '../wailsjs/go/main/App';
 
 // useMessage() 的 Provider 在父组件 Root.vue 中
 const message = useMessage();
@@ -99,14 +99,6 @@ const logs = ref([]);
 const status = reactive({ enabled: false, server: '', error: '' });
 const logText = computed(() => logs.value.join('\n'));
 const currentLocale = computed(() => locale.value);
-
-const toggleLocale = async () => {
-  const newLocale = locale.value === 'zh' ? 'en' : 'zh';
-  // 通过API设置后端语言
-  const result = await SetLocale(newLocale);
-  // 设置前端语言
-  locale.value = result;
-};
 
 // 初始化时获取后端语言设置
 onMounted(async () => {
