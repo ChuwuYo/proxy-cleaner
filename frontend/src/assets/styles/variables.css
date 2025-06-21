@@ -1,0 +1,35 @@
+/* 全局CSS变量定义 */
+:root {
+  /* 间距系统 */
+  --spacing-xs: 8px;
+  --spacing-sm: 12px;
+  --spacing-md: 16px;
+  --spacing-lg: 20px;
+  --spacing-xl: 24px;
+  --spacing-2xl: 40px;
+
+  /* 圆角系统 */
+  --border-radius-sm: 6px;
+  --border-radius-md: 12px;
+  --border-radius-lg: 16px;
+
+  /* 按钮尺寸 */
+  --button-size-sm: 30px;
+  --button-size-md: 36px;
+  --button-size-lg: 42px;
+
+  /* 容器尺寸 */
+  --container-max-width: 700px;
+
+  /* 层级系统 */
+  --z-index-fixed: 999;
+  --z-index-modal: 1000;
+
+  /* 透明度 */
+  --opacity-hover: 0.12;
+  --opacity-disabled: 0.6;
+
+  /* 过渡动画 */
+  --transition-fast: 0.1s ease;
+  --transition-normal: 0.3s ease;
+}

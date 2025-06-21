@@ -6,6 +6,7 @@ export default {
     error: "获取ProxyEnable状态失败: {msg}",
     enabled: "已启用",
     disabled: "已禁用",
+    unknown: "未知",
     address: "地址",
     notSet: "未设置",
     notEffective: "未生效"

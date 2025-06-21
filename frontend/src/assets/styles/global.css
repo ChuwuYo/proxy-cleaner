@@ -1,0 +1,47 @@
+/* 全局样式定义 */
+@import './variables.css';
+@import 'vfonts/Lato.css';
+@import 'vfonts/FiraCode.css';
+
+/* 字体定义 */
+@font-face {
+  font-family: 'OPlusSans30';
+  src: url('../fonts/OPlusSans3.woff2') format('woff2');
+  font-weight: normal;
+  font-style: normal;
+}
+
+/* 全局基础样式 */
+body {
+  margin: 0;
+  padding: 0;
+  font-family: 'Lato', sans-serif;
+}
+
+/* Naive UI 组件字体覆盖 */
+body,
+.n-button,
+.n-card,
+.n-log,
+.n-text,
+.n-p,
+.n-h1 {
+  font-family: 'OPlusSans30', sans-serif !important;
+}
+
+/* 应用容器样式 */
+.app-container {
+  max-width: var(--container-max-width);
+  margin: 0 auto;
+  padding: var(--spacing-2xl) var(--spacing-lg);
+}
+
+/* 标题区域样式 */
+.title-area {
+  text-align: center;
+}
+
+/* 错误文本样式 */
+.error-text {
+  color: #d03050;
+}

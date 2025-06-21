@@ -1,0 +1,51 @@
+/* 组件样式定义 */
+@import './variables.css';
+
+/* 固定按钮基础样式 */
+.fixed-button {
+  position: fixed;
+  top: var(--spacing-lg);
+  z-index: var(--z-index-fixed);
+  width: var(--button-size-sm);
+  height: var(--button-size-sm);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: transparent;
+  border-radius: var(--border-radius-sm);
+  padding: 0;
+  transition: background-color var(--transition-normal);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  transform: translateZ(0);
+  font-weight: 500;
+}
+
+/* 语言切换按钮 */
+.language-toggle-button {
+  right: 60px;
+}
+
+/* 主题切换按钮 */
+.theme-toggle-button {
+  right: var(--spacing-lg);
+  cursor: pointer;
+}
+
+.theme-toggle-button:hover {
+  background-color: rgba(255, 255, 255, var(--opacity-hover));
+}
+
+/* 按钮悬停效果 */
+.header-btn {
+  transition: background-color var(--transition-normal);
+}
+
+.header-btn:hover {
+  background-color: rgba(24, 160, 88, var(--opacity-hover));
+}
+
+.header-btn:active {
+  background-color: transparent;
+  transition: background-color var(--transition-fast);
+}

@@ -8,16 +8,14 @@
       <!-- 在 Provider 内部，加载 App 组件 -->
       <App />
       <!-- 语言切换按钮 -->
-      <n-button @click="toggleLocale" size="small"
-        style="position: fixed; top: 20px; right: 60px; z-index: 999; width: 30px; height: 30px; display: flex; align-items: center; justify-content: center; background-color: transparent; border-radius: 12; padding: 0;">
-        <n-icon size="20" style="display: flex; align-items: center; justify-content: center;">
+      <n-button @click="toggleLocale" size="small" class="fixed-button language-toggle-button">
+        <n-icon size="20">
           <LanguageOutline />
         </n-icon>
       </n-button>
       <!-- 主题切换按钮 -->
-      <n-button @click="toggleTheme" size="small"
-        style="position: fixed; top: 20px; right: 20px; z-index: 999; width: 30px; height: 30px; display: flex; align-items: center; justify-content: center; background-color: transparent; border-radius: 12; padding: 0;">
-        <n-icon size="20" style="display: flex; align-items: center; justify-content: center;">
+      <n-button @click="toggleTheme" size="small" class="fixed-button theme-toggle-button">
+        <n-icon size="20">
           <Sunny v-if="themeName === 'light'" />
           <Moon v-else />
         </n-icon>
@@ -61,39 +59,5 @@ const theme = computed(() => {
 });
 </script>
 
-<style scoped>
-.theme-toggle-button {
-  position: fixed;
-  top: 20px;
-  right: 20px;
-  z-index: 999;
-  cursor: pointer;
-  transition: background-color 0.3s ease;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
 
-.theme-toggle-button:hover {
-  background-color: rgba(255, 255, 255, 0.2);
-}
-</style>
 
-<style>
-@font-face {
-  font-family: 'OPlusSans30';
-  src: url('./assets/fonts/OPlusSans3.woff2') format('woff2');
-  font-weight: normal;
-  font-style: normal;
-}
-
-body,
-n-button,
-n-card,
-n-log,
-n-text,
-n-p,
-n-h1 {
-  font-family: 'OPlusSans30', sans-serif !important;
-}
-</style>

@@ -6,6 +6,7 @@ export default {
     error: "Failed to get ProxyEnable status: {msg}",
     enabled: "Enabled",
     disabled: "Disabled",
+    unknown: "Unknown",
     address: "Address",
     notSet: "Not Set",
     notEffective: "Not Effective"

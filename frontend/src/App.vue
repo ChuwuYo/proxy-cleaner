@@ -23,12 +23,18 @@
                 <template #icon><n-icon :component="RefreshIcon" /></template>
               </n-button>
             </template>
-            <div v-if="status.error" class="error-text">{{ $t('status.error', { msg: status.error }) }}</div>
+            <div v-if="status.error" class="error-text">
+              {{ $t('status.error', { msg: status.error }) }}
+              <n-tag v-if="status.isUnknown" type="warning" size="small" style="margin-left: 8px;">
+                {{ $t('status.unknown') }}
+              </n-tag>
+            </div>
             <n-space v-else vertical>
               <n-p>
                 {{ $t('status.title') }}:
-                <n-tag :type="status.enabled ? 'error' : 'success'" round>
-                  {{ status.enabled ? $t('status.enabled') : $t('status.disabled') }}
+                <n-tag :type="status.isUnknown ? 'warning' : (status.enabled ? 'error' : 'success')" round>
+                  {{ status.isUnknown ? $t('status.unknown') : 
+                     (status.enabled ? $t('status.enabled') : $t('status.disabled')) }}
                 </n-tag>
               </n-p>
               <n-p>
@@ -96,14 +102,23 @@ const message = useMessage();
 const { t, locale } = useI18n();
 
 const logs = ref([]);
-const status = reactive({ enabled: false, server: '', error: '' });
+const status = reactive({ enabled: false, server: '', error: '', isUnknown: false });
 const logText = computed(() => logs.value.join('\n'));
 const currentLocale = computed(() => locale.value);
 
 // 初始化时获取后端语言设置
 onMounted(async () => {
-  const backendLocale = await GetCurrentLocale();
-  locale.value = backendLocale;
+  try {
+    const backendLocale = await GetCurrentLocale();
+    if (backendLocale && (backendLocale === 'zh' || backendLocale === 'en')) {
+      locale.value = backendLocale;
+    } else {
+      locale.value = 'zh'; // 默认中文
+    }
+  } catch (e) {
+    console.warn('获取后端语言设置失败，使用默认中文:', e);
+    locale.value = 'zh';
+  }
   refreshStatus();
 });
 
@@ -121,7 +136,8 @@ const refreshStatus = async () => {
       addLog(t('status.error', { msg: result.error }));
       message.error(t('status.error', { msg: result.error }));
     } else {
-      status.error = '';  // 清除错误状态
+      status.error = '';
+      status.isUnknown = false;  // 清除未知状态
       status.enabled = result.enabled;
       status.server = result.server;
       addLog(t('logs.updateSuccess'));
@@ -130,8 +146,8 @@ const refreshStatus = async () => {
   } catch (e) {
     const errorMsg = t('logs.backendError', { msg: e });
     status.error = errorMsg;
-    status.enabled = false;  // 错误时设置为禁用状态
-    status.server = '';     // 错误时清空服务器地址
+    status.isUnknown = true;  // 标记状态未知
+    // 不修改 enabled 和 server，保持上次已知状态
     addLog(errorMsg);
     message.error(errorMsg);
   }
@@ -167,36 +183,5 @@ const runRestartDNSService = () => handleOperation(RestartDNSService, t('logs.re
 
 </script>
 
-<style>
-@import 'vfonts/Lato.css';
-@import 'vfonts/FiraCode.css';
 
-body {
-  margin: 0;
-  padding: 0;
-  font-family: 'Lato', sans-serif;
-}
 
-.app-container {
-  max-width: 700px;
-  margin: 0 auto;
-  padding: 40px 20px;
-}
-
-.title-area {
-  text-align: center;
-}
-
-.header-btn {
-  transition: background-color 0.3s ease;
-}
-
-.header-btn:hover {
-  background-color: rgba(24, 160, 88, 0.12);
-}
-
-.header-btn:active {
-  background-color: transparent;
-  transition: background-color 0.1s ease;
-}
-</style>
