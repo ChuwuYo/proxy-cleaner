@@ -1,4 +1,4 @@
-# ProxyCleaner
+# ProxyCleaner <img src="frontend/public/appicon.png" alt="ProxyCleaner Logo" width="40" height="40" style="vertical-align: middle;">
 
 [中文](README.md) | [English](README_EN.md)
 

@@ -1,4 +1,4 @@
-# ProxyCleaner 前端
+# ProxyCleaner 前端 <img src="public/appicon.png" alt="ProxyCleaner Logo" width="40" height="40" style="vertical-align: middle;">
 
 ## 项目简介
 
@@ -34,4 +34,5 @@ npm install
 - `src/Root.vue`: 根组件，提供主题配置和全局消息提示
 - `src/i18n/`: 国际化支持，包含中英文语言文件
 - `src/assets/styles/`: 统一的样式管理系统
+- `public/`: 静态资源目录，包含应用图标等文件
 - `wailsjs/`: Wails 自动生成的 Go 后端接口绑定
