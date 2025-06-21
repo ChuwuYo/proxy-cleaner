@@ -83,10 +83,25 @@ This will start a Vite development server and provide fast hot reloading of fron
 
 ## Building the Project
 
-To build a distributable production mode package, run the following command:
+### Using Build Script (Recommended)
+
+The project provides an automated build script that automatically updates version information and builds the application:
+
+```powershell
+.\build.ps1 -Version "0.0.8"
+```
+
+This script will:
+- Automatically update version information in `wails.json`
+- Execute the build command with the correct version number
+- Ensure Windows properties and application title display the same version number
+
+### Manual Build
+
+If you need to build manually, first ensure the version number in `wails.json` is correct, then run:
 
 ```bash
-wails build
+wails build -ldflags="-X main.Version=0.0.8"
 ```
 
 ## Contribution
