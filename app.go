@@ -3,9 +3,13 @@ package main
 import (
 	"context"
 	"fmt"
+	"io"
+	"net/http"
+	"net/url"
 	"os/exec"
 	"regexp"
 	"strings"
+	"time"
 
 	"golang.org/x/sys/windows"
 	"golang.org/x/sys/windows/registry"
@@ -239,6 +243,39 @@ func (a *App) RestartDNSService() string {
 	}
 	
 	return i18n.GetMessage(i18n.SuccessRestartDNS)
+}
+
+// GetCurrentIP 获取当前设备的公网IP地址
+func (a *App) GetCurrentIP() string {
+	transport := &http.Transport{}
+	
+	// 读取系统代理设置
+	proxyStatus := a.GetProxyStatus()
+	if proxyStatus.Enabled && proxyStatus.Server != "" {
+		proxyURL, err := url.Parse("http://" + proxyStatus.Server)
+		if err == nil {
+			transport.Proxy = http.ProxyURL(proxyURL)
+		}
+	}
+	
+	client := &http.Client{
+		Timeout: 10 * time.Second,
+		Transport: transport,
+	}
+	
+	resp, err := client.Get("https://myip.addr.tools/")
+	if err != nil {
+		return i18n.GetMessage(i18n.ErrGetCurrentIP, err.Error())
+	}
+	defer resp.Body.Close()
+	
+	body, err := io.ReadAll(resp.Body)
+	if err != nil {
+		return i18n.GetMessage(i18n.ErrGetCurrentIP, err.Error())
+	}
+	
+	ip := strings.TrimSpace(string(body))
+	return i18n.GetMessage(i18n.SuccessGetCurrentIP, ip)
 }
 
 // PingTest 执行ping连通性测试

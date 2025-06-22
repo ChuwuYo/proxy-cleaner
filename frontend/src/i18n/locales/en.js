@@ -29,6 +29,7 @@ export default {
   },
   connectivity: {
     title: "Network Connectivity Test",
+    currentIP: "Current IP Address",
     placeholder: "Enter host address to test (default: bing.com)",
     test: "Start Test",
     emptyHost: "Please enter a host address to test"
@@ -47,7 +48,9 @@ export default {
     resettingTCPIP: "Resetting TCP/IP stack...",
     resettingWinsock: "Resetting Winsock protocol...",
     restartingDNS: "Restarting DNS service...",
-    pingTesting: "Testing connection to {host}..."
+    pingTesting: "Testing connection to {host}...",
+    gettingIP: "Getting current IP address...",
+    ipUpdated: "IP address updated"
   },
   common: {
     success: "Success",

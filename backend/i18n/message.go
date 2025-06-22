@@ -20,6 +20,7 @@ const (
 	ErrResetWinsock     MessageKey = "err_reset_winsock"
 	ErrPingTest         MessageKey = "err_ping_test"
 	ErrPingFailed       MessageKey = "err_ping_failed"
+	ErrGetCurrentIP     MessageKey = "err_get_current_ip"
 	ErrGeneric          MessageKey = "err_generic"
 
 	// 成功消息
@@ -32,6 +33,7 @@ const (
 	SuccessRestartDNS      MessageKey = "success_restart_dns"
 	SuccessPingTest        MessageKey = "success_ping_test"
 	SuccessPingTestWithDelay MessageKey = "success_ping_test_with_delay"
+	SuccessGetCurrentIP    MessageKey = "success_get_current_ip"
 )
 
 var messages = map[string]map[MessageKey]string{
@@ -46,6 +48,7 @@ var messages = map[string]map[MessageKey]string{
 		ErrResetWinsock:      "重置Winsock时出错: %v\n输出: %s",
 		ErrPingTest:          "Ping测试执行失败 %s: %v",
 		ErrPingFailed:        "Ping测试失败: 无法连接到 %s",
+		ErrGetCurrentIP:      "获取当前IP地址失败: %v",
 		ErrGeneric:           "失败: %v",
 
 		SuccessDisableProxy:   "成功: 已通过直接修改注册表关闭系统代理。",
@@ -57,6 +60,7 @@ var messages = map[string]map[MessageKey]string{
 		SuccessRestartDNS:     "成功: DNS 客户端缓存服务已重启。",
 		SuccessPingTest:       "成功: 网络连通性正常，可以访问 %s",
 		SuccessPingTestWithDelay: "成功: 网络连通性正常，可以访问 %s，延迟: %s",
+		SuccessGetCurrentIP:   "当前IP地址: %s",
 	},
 	"en": {
 		ErrOpenRegistry:       "Failed to open registry key: %v",
@@ -69,6 +73,7 @@ var messages = map[string]map[MessageKey]string{
 		ErrResetWinsock:      "Error resetting Winsock: %v\nOutput: %s",
 		ErrPingTest:          "Ping test execution failed %s: %v",
 		ErrPingFailed:        "Ping test failed: Cannot connect to %s",
+		ErrGetCurrentIP:      "Failed to get current IP address: %v",
 		ErrGeneric:           "Failed: %v",
 
 		SuccessDisableProxy:   "Success: System proxy disabled via direct registry modification.",
@@ -80,6 +85,7 @@ var messages = map[string]map[MessageKey]string{
 		SuccessRestartDNS:     "Success: DNS client cache service restarted.",
 		SuccessPingTest:       "Success: Network connectivity is normal, can access %s",
 		SuccessPingTestWithDelay: "Success: Network connectivity is normal, can access %s, delay: %s",
+		SuccessGetCurrentIP:   "Current IP address: %s",
 	},
 }
 

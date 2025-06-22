@@ -18,6 +18,10 @@ export function GetBuildInfo() {
   return window['go']['main']['App']['GetBuildInfo']();
 }
 
+export function GetCurrentIP() {
+  return window['go']['main']['App']['GetCurrentIP']();
+}
+
 export function GetCurrentLocale() {
   return window['go']['main']['App']['GetCurrentLocale']();
 }

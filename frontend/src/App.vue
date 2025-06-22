@@ -80,7 +80,15 @@
 
       <!-- 连通性测试 -->
       <n-card :title="$t('connectivity.title')">
+        <template #header-extra>
+          <n-button @click="getCurrentIP" quaternary circle size="small">
+            <template #icon><n-icon :component="RefreshIcon" /></template>
+          </n-button>
+        </template>
         <n-space vertical style="width: 100%;">
+          <n-p v-if="currentIP">
+            {{ $t('connectivity.currentIP') }}: <n-text type="info">{{ currentIP }}</n-text>
+          </n-p>
           <n-input v-model:value="pingHost" :placeholder="$t('connectivity.placeholder')" />
           <n-button type="primary" block @click="runPingTest" :loading="pingTesting">
             {{ $t('connectivity.test') }}
@@ -108,7 +116,7 @@ import {
 } from 'naive-ui';
 import { Refresh as RefreshIcon } from '@vicons/ionicons5';
 import { GetProxyStatus, DisableProxyDirectly, DisableProxyViaPowerShell, ResetSystemProxy,
-  FlushDNSCache, ResetTCPIP, ResetWinsock, RestartDNSService, GetCurrentLocale, PingTest } from '../wailsjs/go/main/App';
+  FlushDNSCache, ResetTCPIP, ResetWinsock, RestartDNSService, GetCurrentLocale, PingTest, GetCurrentIP } from '../wailsjs/go/main/App';
 
 // useMessage() 的 Provider 在父组件 Root.vue 中
 const message = useMessage();
@@ -124,6 +132,7 @@ const pingHost = ref('bing.com');
 const pingResult = ref('');
 const pingSuccess = ref(false);
 const pingTesting = ref(false);
+const currentIP = ref('');
 
 // 初始化时获取后端语言设置
 onMounted(async () => {
@@ -139,6 +148,7 @@ onMounted(async () => {
     locale.value = 'zh';
   }
   refreshStatus();
+  getCurrentIP();
 });
 
 const addLog = (msg) => {
@@ -156,7 +166,7 @@ const refreshStatus = async () => {
       message.error(t('status.error', { msg: result.error }));
     } else {
       status.error = '';
-      status.isUnknown = false;  // 清除未知状态
+      status.isUnknown = false;
       status.enabled = result.enabled;
       status.server = result.server;
       addLog(t('logs.updateSuccess'));
@@ -165,8 +175,7 @@ const refreshStatus = async () => {
   } catch (e) {
     const errorMsg = t('logs.backendError', { msg: e });
     status.error = errorMsg;
-    status.isUnknown = true;  // 标记状态未知
-    // 不修改 enabled 和 server，保持上次已知状态
+    status.isUnknown = true;
     addLog(errorMsg);
     message.error(errorMsg);
   }
@@ -230,6 +239,27 @@ const runPingTest = async () => {
     message.error(errorMsg, { duration: 5000 });
   } finally {
     pingTesting.value = false;
+  }
+};
+
+// 获取当前IP地址
+const getCurrentIP = async () => {
+  addLog(t('logs.gettingIP'));
+  try {
+    const result = await GetCurrentIP();
+    if (result.includes(t('connectivity.currentIP')) || result.includes('Current IP address:')) {
+      const ip = result.split(': ')[1];
+      currentIP.value = ip;
+      addLog(result);
+      message.success(t('logs.ipUpdated'));
+    } else {
+      addLog(result);
+      message.error(result);
+    }
+  } catch (e) {
+    const errorMsg = t('logs.backendError', { msg: e });
+    addLog(errorMsg);
+    message.error(errorMsg);
   }
 };
 

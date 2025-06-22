@@ -29,6 +29,7 @@ export default {
   },
   connectivity: {
     title: "网络连通性测试",
+    currentIP: "当前IP地址",
     placeholder: "输入要测试的主机地址（默认：bing.com）",
     test: "开始测试",
     emptyHost: "请输入要测试的主机地址"
@@ -47,7 +48,9 @@ export default {
     resettingTCPIP: "正在重置 TCP/IP 栈...",
     resettingWinsock: "正在重置 Winsock 协议...",
     restartingDNS: "正在重启 DNS 服务...",
-    pingTesting: "正在测试连接到 {host}..."
+    pingTesting: "正在测试连接到 {host}...",
+    gettingIP: "正在获取当前IP地址...",
+    ipUpdated: "IP地址已更新"
   },
   common: {
     success: "成功",

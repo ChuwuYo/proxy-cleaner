@@ -10,6 +10,8 @@ export function FlushDNSCache():Promise<string>;
 
 export function GetBuildInfo():Promise<main.BuildInfo>;
 
+export function GetCurrentIP():Promise<string>;
+
 export function GetCurrentLocale():Promise<string>;
 
 export function GetProxyStatus():Promise<main.ProxyStatus>;
