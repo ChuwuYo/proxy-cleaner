@@ -34,6 +34,14 @@ export function PingTest(arg1) {
   return window['go']['main']['App']['PingTest'](arg1);
 }
 
+export function ReleaseIP() {
+  return window['go']['main']['App']['ReleaseIP']();
+}
+
+export function RenewIP() {
+  return window['go']['main']['App']['RenewIP']();
+}
+
 export function ResetSystemProxy() {
   return window['go']['main']['App']['ResetSystemProxy']();
 }

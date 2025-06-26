@@ -323,3 +323,25 @@ func (a *App) PingTest(host string) string {
 		return i18n.GetMessage(i18n.ErrPingFailed, host)
 	}
 }
+
+// ReleaseIP 释放当前IP地址
+func (a *App) ReleaseIP() string {
+	cmd := exec.Command("ipconfig", "/release")
+	cmd.SysProcAttr = &windows.SysProcAttr{HideWindow: true}
+	output, err := cmd.CombinedOutput()
+	if err != nil {
+		return i18n.GetMessage(i18n.ErrReleaseIP, err, string(output))
+	}
+	return i18n.GetMessage(i18n.SuccessReleaseIP)
+}
+
+// RenewIP 重新获取IP地址
+func (a *App) RenewIP() string {
+	cmd := exec.Command("ipconfig", "/renew")
+	cmd.SysProcAttr = &windows.SysProcAttr{HideWindow: true}
+	output, err := cmd.CombinedOutput()
+	if err != nil {
+		return i18n.GetMessage(i18n.ErrRenewIP, err, string(output))
+	}
+	return i18n.GetMessage(i18n.SuccessRenewIP)
+}

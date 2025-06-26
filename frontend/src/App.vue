@@ -64,6 +64,8 @@
             <n-space vertical style="width: 100%;">
               <n-button type="primary" block @click="runResetSystemProxy">{{ $t('basicRepair.resetProxy') }}</n-button>
               <n-button type="info" block @click="runFlushDNSCache">{{ $t('basicRepair.flushDNS') }}</n-button>
+              <n-button type="warning" block @click="runReleaseIP">{{ $t('basicRepair.releaseIP') }}</n-button>
+              <n-button type="success" block @click="runRenewIP">{{ $t('basicRepair.renewIP') }}</n-button>
             </n-space>
           </n-card>
         </n-gi>
@@ -116,7 +118,7 @@ import {
 } from 'naive-ui';
 import { Refresh as RefreshIcon } from '@vicons/ionicons5';
 import { GetProxyStatus, DisableProxyDirectly, DisableProxyViaPowerShell, ResetSystemProxy,
-  FlushDNSCache, ResetTCPIP, ResetWinsock, RestartDNSService, GetCurrentLocale, PingTest, GetCurrentIP } from '../wailsjs/go/main/App';
+  FlushDNSCache, ResetTCPIP, ResetWinsock, RestartDNSService, GetCurrentLocale, PingTest, GetCurrentIP, ReleaseIP, RenewIP } from '../wailsjs/go/main/App';
 
 // useMessage() 的 Provider 在父组件 Root.vue 中
 const message = useMessage();
@@ -208,6 +210,8 @@ const runFlushDNSCache = () => handleOperation(FlushDNSCache, t('logs.flushingDN
 const runResetTCPIP = () => handleOperation(ResetTCPIP, t('logs.resettingTCPIP'));
 const runResetWinsock = () => handleOperation(ResetWinsock, t('logs.resettingWinsock'));
 const runRestartDNSService = () => handleOperation(RestartDNSService, t('logs.restartingDNS'));
+const runReleaseIP = () => handleOperation(ReleaseIP, t('logs.releasingIP'));
+const runRenewIP = () => handleOperation(RenewIP, t('logs.renewingIP'));
 
 // 执行ping连通性测试
 const runPingTest = async () => {
