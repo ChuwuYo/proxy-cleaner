@@ -53,7 +53,7 @@ func requiresAdmin(command string) bool {
 	return false
 }
 
-// App struct holds application context
+
 type App struct {
 	ctx context.Context
 }
@@ -68,17 +68,17 @@ func (a *App) SetLocale(locale string) string {
 	return i18n.SetLocale(locale)
 }
 
-// NewApp creates a new App application struct
+// NewApp 创建一个新的 App 应用结构体
 func NewApp() *App {
 	return &App{}
 }
 
-// startup is called when the app starts.
+// startup 在应用启动时调用
 func (a *App) startup(ctx context.Context) {
 	a.ctx = ctx
 }
 
-// executeAsAdmin runs a command with elevated privileges
+// executeAsAdmin 以提升的权限运行命令
 func executeAsAdmin(command string, args ...string) ([]byte, error) {
 	psCmd := fmt.Sprintf("Start-Process -FilePath '%s' -ArgumentList '%s' -Verb RunAs -Wait -PassThru",
 		command, strings.Join(args, " "))
@@ -87,7 +87,7 @@ func executeAsAdmin(command string, args ...string) ([]byte, error) {
 	return cmd.CombinedOutput()
 }
 
-// ProxyStatus defines the structure for returning proxy status to the frontend.
+// ProxyStatus 定义了返回给前端的代理状态的结构体
 type ProxyStatus struct {
 	Enabled bool   `json:"enabled"`
 	Server  string `json:"server"`
@@ -96,7 +96,7 @@ type ProxyStatus struct {
 
 const regKeyPath = `Software\Microsoft\Windows\CurrentVersion\Internet Settings`
 
-// GetProxyStatus retrieves the current system proxy settings.
+// GetProxyStatus 获取当前系统代理设置
 func (a *App) GetProxyStatus() ProxyStatus {
 	key, err := registry.OpenKey(registry.CURRENT_USER, regKeyPath, registry.QUERY_VALUE)
 	if err != nil {
@@ -104,14 +104,14 @@ func (a *App) GetProxyStatus() ProxyStatus {
 	}
 	defer key.Close()
 
-	// Read proxy enable status
+	// 读取代理启用状态
 	proxyEnable, _, err := key.GetIntegerValue("ProxyEnable")
 	if err != nil {
-		// If the value doesn't exist or there's an error, assume proxy is disabled.
+		// 如果该值不存在或存在错误，则假定代理已禁用。
 		proxyEnable = 0
 	}
 
-	// Read proxy server address with proper error handling
+	// 读取代理服务器地址并进行适当的错误处理
 	proxyServer, _, err := key.GetStringValue("ProxyServer")
 	if err != nil && err != registry.ErrNotExist {
 		return ProxyStatus{Error: i18n.GetMessage(i18n.ErrReadProxyServer, err.Error())}
@@ -132,7 +132,7 @@ func (a *App) GetProxyStatus() ProxyStatus {
 	}
 }
 
-// setProxyState is an internal helper function to set the proxy state.
+// setProxyState 是一个内部辅助函数，用于设置代理状态
 func setProxyState(enabled bool) error {
 	key, err := registry.OpenKey(registry.CURRENT_USER, regKeyPath, registry.SET_VALUE)
 	if err != nil {
@@ -152,7 +152,7 @@ func setProxyState(enabled bool) error {
 	return nil
 }
 
-// DisableProxyDirectly disables the system proxy by directly modifying the registry.
+// DisableProxyDirectly 通过直接修改注册表禁用系统代理
 func (a *App) DisableProxyDirectly() string {
 	err := setProxyState(false)
 	if err != nil {
@@ -161,13 +161,13 @@ func (a *App) DisableProxyDirectly() string {
 	return i18n.GetMessage(i18n.SuccessDisableProxy)
 }
 
-// DisableProxyViaPowerShell disables the system proxy using a PowerShell command.
+// DisableProxyViaPowerShell 使用 PowerShell 命令禁用系统代理
 func (a *App) DisableProxyViaPowerShell() string {
-	cmd := exec.Command("powershell", "-Command", "Set-ItemProperty -Path 'HKCU:\\Software\\Microsoft\\Windows\\CurrentVersion\\Internet Settings' -Name ProxyEnable -Value 0")
+	cmd := exec.Command("powershell", "-Command", "Set-ItemProperty -Path 'HKCU:\Software\Microsoft\Windows\CurrentVersion\Internet Settings' -Name ProxyEnable -Value 0")
 	cmd.SysProcAttr = &windows.SysProcAttr{HideWindow: true}
 	output, err := cmd.CombinedOutput()
 	if err != nil {
-		// Combine error message with PowerShell's output for better debugging.
+		// 将错误消息与 PowerShell 的输出相结合，以便更好地进行调试。
 		return i18n.GetMessage(i18n.ErrExecutePowerShell, err, string(output))
 	}
 	return i18n.GetMessage(i18n.SuccessDisableProxyPS)
