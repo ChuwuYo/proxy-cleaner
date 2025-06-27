@@ -45,7 +45,7 @@ The following features of this program will automatically request administrator 
 - Restart DNS client cache service
 - Reset firewall settings
 
-When performing these operations, the system will display a UAC privilege elevation request window. Please click "Yes" to allow the operation to proceed.
+When performing these operations, the system will display a UAC privilege elevation request window. Please click "Yes" to allow the operation to proceed. (or run the program as an administrator)
 
 ### Dangerous Operation Warnings
 The following operations may temporarily interrupt network connections and require a computer restart to fully take effect:
