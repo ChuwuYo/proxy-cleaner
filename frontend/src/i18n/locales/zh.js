@@ -20,14 +20,14 @@ export default {
     title: "网络基础修复",
     resetProxy: "重置系统代理设置",
     flushDNS: "清除 DNS 缓存",
-    releaseIP: "释放IP地址",
-    renewIP: "重新获取IP地址"
+    releaseRenewIP: "释放并重新获取IP"
   },
   advancedReset: {
     title: "高级网络重置",
     resetTCPIP: "重置 TCP/IP 栈",
     resetWinsock: "重置 Winsock 协议",
-    restartDNS: "重启 DNS 服务"
+    restartDNS: "重启 DNS 服务",
+    resetFirewall: "重置防火墙设置"
   },
   connectivity: {
     title: "网络连通性测试",
@@ -50,8 +50,8 @@ export default {
     resettingTCPIP: "正在重置 TCP/IP 栈...",
     resettingWinsock: "正在重置 Winsock 协议...",
     restartingDNS: "正在重启 DNS 服务...",
-    releasingIP: "正在释放IP地址...",
-    renewingIP: "正在重新获取IP地址...",
+    resettingFirewall: "正在重置防火墙设置...",
+    releaseRenewingIP: "正在释放并重新获取IP...",
     pingTesting: "正在测试连接到 {host}...",
     gettingIP: "正在获取当前IP地址...",
     ipUpdated: "IP地址已更新"

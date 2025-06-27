@@ -20,14 +20,14 @@ export default {
     title: "Basic Network Repair",
     resetProxy: "Reset System Proxy",
     flushDNS: "Flush DNS Cache",
-    releaseIP: "Release IP Address",
-    renewIP: "Renew IP Address"
+    releaseRenewIP: "Release & Renew IP"
   },
   advancedReset: {
     title: "Advanced Network Reset",
     resetTCPIP: "Reset TCP/IP Stack",
     resetWinsock: "Reset Winsock Protocol",
-    restartDNS: "Restart DNS Service"
+    restartDNS: "Restart DNS Service",
+    resetFirewall: "Reset Firewall Settings"
   },
   connectivity: {
     title: "Network Connectivity Test",
@@ -50,8 +50,8 @@ export default {
     resettingTCPIP: "Resetting TCP/IP stack...",
     resettingWinsock: "Resetting Winsock protocol...",
     restartingDNS: "Restarting DNS service...",
-    releasingIP: "Releasing IP address...",
-    renewingIP: "Renewing IP address...",
+    resettingFirewall: "Resetting firewall settings...",
+    releaseRenewingIP: "Releasing and renewing IP...",
     pingTesting: "Testing connection to {host}...",
     gettingIP: "Getting current IP address...",
     ipUpdated: "IP address updated"

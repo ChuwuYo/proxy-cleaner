@@ -18,9 +18,9 @@ export function GetProxyStatus():Promise<main.ProxyStatus>;
 
 export function PingTest(arg1:string):Promise<string>;
 
-export function ReleaseIP():Promise<string>;
+export function ReleaseRenewIP():Promise<string>;
 
-export function RenewIP():Promise<string>;
+export function ResetFirewall():Promise<string>;
 
 export function ResetSystemProxy():Promise<string>;
 

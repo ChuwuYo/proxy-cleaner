@@ -25,6 +25,7 @@ const (
 	ErrBasicNetworkFix  MessageKey = "err_basic_network_fix"
 	ErrReleaseIP        MessageKey = "err_release_ip"
 	ErrRenewIP          MessageKey = "err_renew_ip"
+	ErrResetFirewall    MessageKey = "err_reset_firewall"
 	ErrGeneric          MessageKey = "err_generic"
 
 	// 成功消息
@@ -39,8 +40,8 @@ const (
 	SuccessPingTestWithDelay MessageKey = "success_ping_test_with_delay"
 	SuccessGetCurrentIP    MessageKey = "success_get_current_ip"
 	SuccessBasicNetworkFix MessageKey = "success_basic_network_fix"
-	SuccessReleaseIP       MessageKey = "success_release_ip"
-	SuccessRenewIP         MessageKey = "success_renew_ip"
+	SuccessReleaseRenewIP  MessageKey = "success_release_renew_ip"
+	SuccessResetFirewall   MessageKey = "success_reset_firewall"
 )
 
 var messages = map[string]map[MessageKey]string{
@@ -60,6 +61,7 @@ var messages = map[string]map[MessageKey]string{
 		ErrBasicNetworkFix:   "基础网络修复时出错: %v",
 		ErrReleaseIP:         "释放IP地址时出错: %v",
 		ErrRenewIP:           "重新获取IP地址时出错: %v",
+		ErrResetFirewall:     "重置防火墙时出错: %v",
 		ErrGeneric:           "失败: %v",
 
 		SuccessDisableProxy:   "成功: 已通过直接修改注册表关闭系统代理。",
@@ -72,8 +74,8 @@ var messages = map[string]map[MessageKey]string{
 		SuccessPingTest:       "成功: 网络连通性正常，可以访问 %s",
 		SuccessPingTestWithDelay: "成功: 网络连通性正常，可以访问 %s，延迟: %s",
 		SuccessGetCurrentIP:   "当前IP地址: %s",
-		SuccessReleaseIP:      "成功: IP地址已释放。网络连接已断开。",
-		SuccessRenewIP:        "成功: IP地址已重新获取。",
+		SuccessReleaseRenewIP: "成功: IP地址已释放并重新获取。",
+		SuccessResetFirewall:  "成功: 防火墙设置已重置为默认状态。",
 	},
 	"en": {
 		ErrOpenRegistry:       "Failed to open registry key: %v",
@@ -90,6 +92,7 @@ var messages = map[string]map[MessageKey]string{
 		ErrFlushDNS:          "Error flushing DNS cache: %v",
 		ErrReleaseIP:         "Error releasing IP address: %v",
 		ErrRenewIP:           "Error renewing IP address: %v",
+		ErrResetFirewall:     "Error resetting firewall: %v",
 		ErrGeneric:           "Failed: %v",
 
 		SuccessDisableProxy:   "Success: System proxy disabled via direct registry modification.",
@@ -102,8 +105,8 @@ var messages = map[string]map[MessageKey]string{
 		SuccessPingTest:       "Success: Network connectivity is normal, can access %s",
 		SuccessPingTestWithDelay: "Success: Network connectivity is normal, can access %s, delay: %s",
 		SuccessGetCurrentIP:   "Current IP address: %s",
-		SuccessReleaseIP:      "Success: IP address released. Network connection disconnected.",
-		SuccessRenewIP:        "Success: IP address renewed.",
+		SuccessReleaseRenewIP: "Success: IP address released and renewed.",
+		SuccessResetFirewall:  "Success: Firewall settings reset to default.",
 	},
 }
 

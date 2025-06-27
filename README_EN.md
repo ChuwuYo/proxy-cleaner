@@ -8,6 +8,8 @@ ProxyCleaner is a desktop application developed based on the Wails framework, de
 
 ## Main Features
 
+### Note: Please select features based on your needs, not all functions need to be executed
+
 - **Proxy Management**:
   - View current system proxy status and configuration
   - Quickly disable system proxy (supports both direct registry modification and PowerShell registry modification)
@@ -24,14 +26,24 @@ ProxyCleaner is a desktop application developed based on the Wails framework, de
   - Network protocol reset:
     - Reset TCP/IP stack
     - Reset Winsock protocol
+    - Reset firewall settings
+  - IP related:
+    - Release and renew IP address
+    - Restart DHCP service
 
 ## Usage Warnings
+
+### Button Color Guide
+- **Blue Buttons**: Basic operations with low risk
+- **Green Buttons**: Informational operations with low risk
+- **Orange Buttons**: Warning-level operations requiring administrator privileges with moderate risk
 
 ### Permission Notes
 The following features of this program will automatically request administrator privileges when executed:
 - Reset TCP/IP stack
 - Reset Winsock protocol
 - Restart DNS client cache service
+- Reset firewall settings
 
 When performing these operations, the system will display a UAC privilege elevation request window. Please click "Yes" to allow the operation to proceed.
 
@@ -54,6 +66,21 @@ The following operations may temporarily interrupt network connections and requi
    - This operation will temporarily interrupt DNS resolution services
    - May cause temporary domain name resolution failures
    - It is recommended to perform this with browsers closed
+
+4. **Reset Firewall Settings**
+   - This operation will reset Windows firewall settings to default state
+   - Will clear all custom firewall rules and configurations
+   - May affect network security and application network access
+   - It is recommended to backup firewall configuration before performing this operation
+
+5. **Release and Renew IP Address**
+   - This operation will release the current IP address and obtain a new IP address
+   - May cause temporary network connection interruption
+   - It is recommended to save all work before performing this operation
+   - A computer restart may be required after the operation
+
+### Operation Risk Warning
+The above operations may cause data loss or network disconnection. It is recommended to back up important data and proceed with caution before execution.
 
 ## Development Guide
 

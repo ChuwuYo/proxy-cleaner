@@ -324,24 +324,31 @@ func (a *App) PingTest(host string) string {
 	}
 }
 
-// ReleaseIP 释放当前IP地址
-func (a *App) ReleaseIP() string {
-	cmd := exec.Command("ipconfig", "/release")
-	cmd.SysProcAttr = &windows.SysProcAttr{HideWindow: true}
-	output, err := cmd.CombinedOutput()
+// ResetFirewall 重置防火墙设置
+func (a *App) ResetFirewall() string {
+	output, err := executeAsAdmin("netsh", "advfirewall", "reset")
 	if err != nil {
-		return i18n.GetMessage(i18n.ErrReleaseIP, err, string(output))
+		return i18n.GetMessage(i18n.ErrResetFirewall, err, string(output))
 	}
-	return i18n.GetMessage(i18n.SuccessReleaseIP)
+	return i18n.GetMessage(i18n.SuccessResetFirewall)
 }
 
-// RenewIP 重新获取IP地址
-func (a *App) RenewIP() string {
-	cmd := exec.Command("ipconfig", "/renew")
-	cmd.SysProcAttr = &windows.SysProcAttr{HideWindow: true}
-	output, err := cmd.CombinedOutput()
-	if err != nil {
-		return i18n.GetMessage(i18n.ErrRenewIP, err, string(output))
+// ReleaseRenewIP 释放并重新获取IP地址
+func (a *App) ReleaseRenewIP() string {
+	// 先释放IP
+	cmd1 := exec.Command("ipconfig", "/release")
+	cmd1.SysProcAttr = &windows.SysProcAttr{HideWindow: true}
+	output1, err1 := cmd1.CombinedOutput()
+	if err1 != nil {
+		return i18n.GetMessage(i18n.ErrReleaseIP, err1, string(output1))
 	}
-	return i18n.GetMessage(i18n.SuccessRenewIP)
+
+	// 再重新获取IP
+	cmd2 := exec.Command("ipconfig", "/renew")
+	cmd2.SysProcAttr = &windows.SysProcAttr{HideWindow: true}
+	output2, err2 := cmd2.CombinedOutput()
+	if err2 != nil {
+		return i18n.GetMessage(i18n.ErrRenewIP, err2, string(output2))
+	}
+	return i18n.GetMessage(i18n.SuccessReleaseRenewIP)
 }

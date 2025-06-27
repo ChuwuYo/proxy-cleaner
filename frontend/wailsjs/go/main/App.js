@@ -34,12 +34,12 @@ export function PingTest(arg1) {
   return window['go']['main']['App']['PingTest'](arg1);
 }
 
-export function ReleaseIP() {
-  return window['go']['main']['App']['ReleaseIP']();
+export function ReleaseRenewIP() {
+  return window['go']['main']['App']['ReleaseRenewIP']();
 }
 
-export function RenewIP() {
-  return window['go']['main']['App']['RenewIP']();
+export function ResetFirewall() {
+  return window['go']['main']['App']['ResetFirewall']();
 }
 
 export function ResetSystemProxy() {
