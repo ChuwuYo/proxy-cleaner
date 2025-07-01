@@ -188,11 +188,11 @@ const handleOperation = async (operationFunc, startMsg) => {
   const loadingMessage = message.loading(t('logs.executing'), { duration: 0 });
   try {
     const result = await operationFunc();
-    addLog(result);
-    if (result.startsWith(t('common.failed')) || result.includes(t('common.error'))) {
-      message.error(result, { duration: 5000 });
+    addLog(result.message);
+    if (result.success) {
+      message.success(result.message, { duration: 5000 });
     } else {
-      message.success(result, { duration: 5000 });
+      message.error(result.message, { duration: 5000 });
     }
   } catch (e) {
     message.error(t('logs.backendError', { msg: e }), { duration: 5000 });
@@ -226,14 +226,14 @@ const runPingTest = async () => {
   
   try {
     const result = await PingTest(pingHost.value.trim());
-    pingResult.value = result;
-    pingSuccess.value = result.includes(t('common.success')) || result.includes('Success');
-    addLog(result);
+    pingResult.value = result.message;
+    pingSuccess.value = result.success;
+    addLog(result.message);
     
     if (pingSuccess.value) {
-      message.success(result, { duration: 3000 });
+      message.success(result.message, { duration: 3000 });
     } else {
-      message.error(result, { duration: 5000 });
+      message.error(result.message, { duration: 5000 });
     }
   } catch (e) {
     const errorMsg = t('logs.backendError', { msg: e });
@@ -251,14 +251,14 @@ const getCurrentIP = async () => {
   addLog(t('logs.gettingIP'));
   try {
     const result = await GetCurrentIP();
-    if (result.includes(t('connectivity.currentIP')) || result.includes('Current IP address:')) {
-      const ip = result.split(': ')[1];
+    addLog(result.message);
+    if (result.success) {
+      // 从消息中提取IP地址
+      const ip = result.message.split(': ')[1];
       currentIP.value = ip;
-      addLog(result);
       message.success(t('logs.ipUpdated'));
     } else {
-      addLog(result);
-      message.error(result);
+      message.error(result.message);
     }
   } catch (e) {
     const errorMsg = t('logs.backendError', { msg: e });
