@@ -87,11 +87,17 @@ func executeAsAdmin(command string, args ...string) ([]byte, error) {
 	return cmd.CombinedOutput()
 }
 
-// ProxyStatus 定义了返回给前端的代理状态的结构体
+// ProxyStatus 定义返回给前端的代理状态的结构体
 type ProxyStatus struct {
 	Enabled bool   `json:"enabled"`
 	Server  string `json:"server"`
 	Error   string `json:"error"`
+}
+
+// OperationResult 定义操作结果的结构体，包含状态码和消息
+type OperationResult struct {
+	Success bool   `json:"success"`
+	Message string `json:"message"`
 }
 
 const regKeyPath = `Software\Microsoft\Windows\CurrentVersion\Internet Settings`
@@ -104,14 +110,16 @@ func (a *App) GetProxyStatus() ProxyStatus {
 	}
 	defer key.Close()
 
-	// 读取代理启用状态
+	// 读取代理启用状态，统一错误处理策略
 	proxyEnable, _, err := key.GetIntegerValue("ProxyEnable")
-	if err != nil {
-		// 如果该值不存在或存在错误，则假定代理已禁用。
+	if err != nil && err != registry.ErrNotExist {
+		return ProxyStatus{Error: i18n.GetMessage(i18n.ErrReadProxyEnable, err.Error())}
+	}
+	if err == registry.ErrNotExist {
 		proxyEnable = 0
 	}
 
-	// 读取代理服务器地址并进行适当的错误处理
+	// 读取代理服务器地址，统一错误处理策略
 	proxyServer, _, err := key.GetStringValue("ProxyServer")
 	if err != nil && err != registry.ErrNotExist {
 		return ProxyStatus{Error: i18n.GetMessage(i18n.ErrReadProxyServer, err.Error())}
@@ -133,10 +141,10 @@ func (a *App) GetProxyStatus() ProxyStatus {
 }
 
 // setProxyState 是一个内部辅助函数，用于设置代理状态
-func setProxyState(enabled bool) error {
+func setProxyState(enabled bool) string {
 	key, err := registry.OpenKey(registry.CURRENT_USER, regKeyPath, registry.SET_VALUE)
 	if err != nil {
-		return fmt.Errorf(i18n.GetMessage(i18n.ErrOpenRegistry, err))
+		return i18n.GetMessage(i18n.ErrOpenRegistry, err.Error())
 	}
 	defer key.Close()
 
@@ -147,106 +155,147 @@ func setProxyState(enabled bool) error {
 
 	err = key.SetDWordValue("ProxyEnable", dwordValue)
 	if err != nil {
-		return fmt.Errorf(i18n.GetMessage(i18n.ErrWriteRegistry, err))
+		return i18n.GetMessage(i18n.ErrWriteRegistry, err.Error())
 	}
-	return nil
+	return ""
 }
 
 // DisableProxyDirectly 通过直接修改注册表禁用系统代理
-func (a *App) DisableProxyDirectly() string {
-	err := setProxyState(false)
-	if err != nil {
-		return i18n.GetMessage(i18n.ErrGeneric, err)
+func (a *App) DisableProxyDirectly() OperationResult {
+	errorMsg := setProxyState(false)
+	if errorMsg != "" {
+		return OperationResult{
+			Success: false,
+			Message: errorMsg,
+		}
 	}
-	return i18n.GetMessage(i18n.SuccessDisableProxy)
+	return OperationResult{
+		Success: true,
+		Message: i18n.GetMessage(i18n.SuccessDisableProxy),
+	}
 }
 
 // DisableProxyViaPowerShell 使用 PowerShell 命令禁用系统代理
-func (a *App) DisableProxyViaPowerShell() string {
-	cmd := exec.Command("powershell", "-Command", "Set-ItemProperty -Path 'HKCU:\Software\Microsoft\Windows\CurrentVersion\Internet Settings' -Name ProxyEnable -Value 0")
+func (a *App) DisableProxyViaPowerShell() OperationResult {
+	cmd := exec.Command("powershell", "-Command", "Set-ItemProperty -Path 'HKCU:\\Software\\Microsoft\\Windows\\CurrentVersion\\Internet Settings' -Name ProxyEnable -Value 0")
 	cmd.SysProcAttr = &windows.SysProcAttr{HideWindow: true}
 	output, err := cmd.CombinedOutput()
 	if err != nil {
 		// 将错误消息与 PowerShell 的输出相结合，以便更好地进行调试。
-		return i18n.GetMessage(i18n.ErrExecutePowerShell, err, string(output))
+		return OperationResult{
+			Success: false,
+			Message: i18n.GetMessage(i18n.ErrExecutePowerShell, err.Error(), string(output)),
+		}
 	}
-	return i18n.GetMessage(i18n.SuccessDisableProxyPS)
+	return OperationResult{
+		Success: true,
+		Message: i18n.GetMessage(i18n.SuccessDisableProxyPS),
+	}
 }
 
 // ResetSystemProxy 重置系统代理设置
-func (a *App) ResetSystemProxy() string {
+func (a *App) ResetSystemProxy() OperationResult {
 	cmd := exec.Command("netsh", "winhttp", "reset", "proxy")
 	cmd.SysProcAttr = &windows.SysProcAttr{HideWindow: true}
 	output, err := cmd.CombinedOutput()
 	if err != nil {
-		return i18n.GetMessage(i18n.ErrGeneric, err, string(output))
+		return OperationResult{
+			Success: false,
+			Message: i18n.GetMessage(i18n.ErrResetProxy, err.Error(), string(output)),
+		}
 	}
-	return i18n.GetMessage(i18n.SuccessResetProxy)
+	return OperationResult{
+		Success: true,
+		Message: i18n.GetMessage(i18n.SuccessResetProxy),
+	}
 }
 
 // FlushDNSCache 清除 DNS 缓存
-func (a *App) FlushDNSCache() string {
+func (a *App) FlushDNSCache() OperationResult {
 	cmd := exec.Command("ipconfig", "/flushdns")
 	cmd.SysProcAttr = &windows.SysProcAttr{HideWindow: true}
 	output, err := cmd.CombinedOutput()
 	if err != nil {
-		return i18n.GetMessage(i18n.ErrGeneric, err, string(output))
+		return OperationResult{
+			Success: false,
+			Message: i18n.GetMessage(i18n.ErrFlushDNS, err.Error(), string(output)),
+		}
 	}
-	return i18n.GetMessage(i18n.SuccessFlushDNS)
+	return OperationResult{
+		Success: true,
+		Message: i18n.GetMessage(i18n.SuccessFlushDNS),
+	}
 }
 
 // ResetTCPIP 重置 TCP/IP 栈
-func (a *App) ResetTCPIP() string {
+func (a *App) ResetTCPIP() OperationResult {
 	// 使用提升的权限执行命令
 	output, err := executeAsAdmin("netsh", "int", "ip", "reset")
 	if err != nil {
-		return i18n.GetMessage(i18n.ErrResetTCPIP, err, string(output))
+		return OperationResult{
+			Success: false,
+			Message: i18n.GetMessage(i18n.ErrResetTCPIP, err.Error(), string(output)),
+		}
 	}
-	return i18n.GetMessage(i18n.SuccessResetTCPIP)
+	return OperationResult{
+		Success: true,
+		Message: i18n.GetMessage(i18n.SuccessResetTCPIP),
+	}
 }
 
 // ResetWinsock 重置 Winsock 协议
-func (a *App) ResetWinsock() string {
+func (a *App) ResetWinsock() OperationResult {
 	// 使用提升的权限执行命令
 	output, err := executeAsAdmin("netsh", "winsock", "reset")
 	if err != nil {
-		return i18n.GetMessage(i18n.ErrResetWinsock, err, string(output))
+		return OperationResult{
+			Success: false,
+			Message: i18n.GetMessage(i18n.ErrResetWinsock, err.Error(), string(output)),
+		}
 	}
-	return i18n.GetMessage(i18n.SuccessResetWinsock)
+	return OperationResult{
+		Success: true,
+		Message: i18n.GetMessage(i18n.SuccessResetWinsock),
+	}
 }
 
 // RestartDNSService 重启 DNS 客户端缓存服务
-func (a *App) RestartDNSService() string {
+// 优化错误处理逻辑，避免混淆的恢复操作
+func (a *App) RestartDNSService() OperationResult {
 	// 先检查服务是否在运行
 	checkCmd := exec.Command("sc", "query", "dnscache")
 	checkCmd.SysProcAttr = &windows.SysProcAttr{HideWindow: true}
 	checkOutput, _ := checkCmd.CombinedOutput()
 	isRunning := strings.Contains(string(checkOutput), "RUNNING")
 
-	// 停止服务
-	out1, err1 := executeAsAdmin("net", "stop", "dnscache")
-	if err1 != nil {
-		if isRunning {
-			return i18n.GetMessage(i18n.ErrStopDNS, err1, string(out1))
+	// 如果服务正在运行，先停止服务
+	if isRunning {
+		out1, err1 := executeAsAdmin("net", "stop", "dnscache")
+		if err1 != nil {
+			return OperationResult{
+				Success: false,
+				Message: i18n.GetMessage(i18n.ErrStopDNS, err1.Error(), string(out1)),
+			}
 		}
-		// 如果服务本来就没在运行，则继续尝试启动
 	}
 
 	// 启动服务
 	out2, err2 := executeAsAdmin("net", "start", "dnscache")
 	if err2 != nil {
-		// 如果启动失败且服务之前在运行，尝试恢复原状态
-		if isRunning {
-			executeAsAdmin("net", "start", "dnscache") // 忽略恢复错误，因为已经处于错误状态
+		return OperationResult{
+			Success: false,
+			Message: i18n.GetMessage(i18n.ErrStartDNS, err2.Error(), string(out2)),
 		}
-		return i18n.GetMessage(i18n.ErrStartDNS, err2, string(out2))
 	}
 	
-	return i18n.GetMessage(i18n.SuccessRestartDNS)
+	return OperationResult{
+		Success: true,
+		Message: i18n.GetMessage(i18n.SuccessRestartDNS),
+	}
 }
 
 // GetCurrentIP 获取当前设备的公网IP地址
-func (a *App) GetCurrentIP() string {
+func (a *App) GetCurrentIP() OperationResult {
 	transport := &http.Transport{}
 	
 	// 读取系统代理设置
@@ -265,21 +314,30 @@ func (a *App) GetCurrentIP() string {
 	
 	resp, err := client.Get("https://myip.addr.tools/")
 	if err != nil {
-		return i18n.GetMessage(i18n.ErrGetCurrentIP, err.Error())
+		return OperationResult{
+			Success: false,
+			Message: i18n.GetMessage(i18n.ErrGetCurrentIP, err.Error()),
+		}
 	}
 	defer resp.Body.Close()
 	
 	body, err := io.ReadAll(resp.Body)
 	if err != nil {
-		return i18n.GetMessage(i18n.ErrGetCurrentIP, err.Error())
+		return OperationResult{
+			Success: false,
+			Message: i18n.GetMessage(i18n.ErrGetCurrentIP, err.Error()),
+		}
 	}
 	
 	ip := strings.TrimSpace(string(body))
-	return i18n.GetMessage(i18n.SuccessGetCurrentIP, ip)
+	return OperationResult{
+		Success: true,
+		Message: i18n.GetMessage(i18n.SuccessGetCurrentIP, ip),
+	}
 }
 
 // PingTest 执行ping连通性测试
-func (a *App) PingTest(host string) string {
+func (a *App) PingTest(host string) OperationResult {
 	if host == "" {
 		host = "bing.com"
 	}
@@ -289,7 +347,10 @@ func (a *App) PingTest(host string) string {
 	output, err := cmd.CombinedOutput()
 	
 	if err != nil {
-		return i18n.GetMessage(i18n.ErrPingTest, host, err.Error())
+		return OperationResult{
+			Success: false,
+			Message: i18n.GetMessage(i18n.ErrPingTest, host, err.Error()),
+		}
 	}
 	
 	// 解析ping结果和延迟信息
@@ -316,31 +377,49 @@ func (a *App) PingTest(host string) string {
 		
 		if len(delays) > 0 {
 			avgDelay := strings.Join(delays, ", ")
-			return i18n.GetMessage(i18n.SuccessPingTestWithDelay, host, avgDelay)
+			return OperationResult{
+				Success: true,
+				Message: i18n.GetMessage(i18n.SuccessPingTestWithDelay, host, avgDelay),
+			}
 		}
-		return i18n.GetMessage(i18n.SuccessPingTest, host)
+		return OperationResult{
+			Success: true,
+			Message: i18n.GetMessage(i18n.SuccessPingTest, host),
+		}
 	} else {
-		return i18n.GetMessage(i18n.ErrPingFailed, host)
+		return OperationResult{
+			Success: false,
+			Message: i18n.GetMessage(i18n.ErrPingFailed, host),
+		}
 	}
 }
 
 // ResetFirewall 重置防火墙设置
-func (a *App) ResetFirewall() string {
+func (a *App) ResetFirewall() OperationResult {
 	output, err := executeAsAdmin("netsh", "advfirewall", "reset")
 	if err != nil {
-		return i18n.GetMessage(i18n.ErrResetFirewall, err, string(output))
+		return OperationResult{
+			Success: false,
+			Message: i18n.GetMessage(i18n.ErrResetFirewall, err.Error(), string(output)),
+		}
 	}
-	return i18n.GetMessage(i18n.SuccessResetFirewall)
+	return OperationResult{
+		Success: true,
+		Message: i18n.GetMessage(i18n.SuccessResetFirewall),
+	}
 }
 
 // ReleaseRenewIP 释放并重新获取IP地址
-func (a *App) ReleaseRenewIP() string {
+func (a *App) ReleaseRenewIP() OperationResult {
 	// 先释放IP
 	cmd1 := exec.Command("ipconfig", "/release")
 	cmd1.SysProcAttr = &windows.SysProcAttr{HideWindow: true}
 	output1, err1 := cmd1.CombinedOutput()
 	if err1 != nil {
-		return i18n.GetMessage(i18n.ErrReleaseIP, err1, string(output1))
+		return OperationResult{
+			Success: false,
+			Message: i18n.GetMessage(i18n.ErrReleaseIP, err1.Error(), string(output1)),
+		}
 	}
 
 	// 再重新获取IP
@@ -348,7 +427,13 @@ func (a *App) ReleaseRenewIP() string {
 	cmd2.SysProcAttr = &windows.SysProcAttr{HideWindow: true}
 	output2, err2 := cmd2.CombinedOutput()
 	if err2 != nil {
-		return i18n.GetMessage(i18n.ErrRenewIP, err2, string(output2))
+		return OperationResult{
+			Success: false,
+			Message: i18n.GetMessage(i18n.ErrRenewIP, err2.Error(), string(output2)),
+		}
 	}
-	return i18n.GetMessage(i18n.SuccessReleaseRenewIP)
+	return OperationResult{
+		Success: true,
+		Message: i18n.GetMessage(i18n.SuccessReleaseRenewIP),
+	}
 }

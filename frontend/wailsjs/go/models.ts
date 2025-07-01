@@ -16,6 +16,20 @@ export namespace main {
 	        this.buildTime = source["buildTime"];
 	    }
 	}
+	export class OperationResult {
+	    success: boolean;
+	    message: string;
+	
+	    static createFrom(source: any = {}) {
+	        return new OperationResult(source);
+	    }
+	
+	    constructor(source: any = {}) {
+	        if ('string' === typeof source) source = JSON.parse(source);
+	        this.success = source["success"];
+	        this.message = source["message"];
+	    }
+	}
 	export class ProxyStatus {
 	    enabled: boolean;
 	    server: string;

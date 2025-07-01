@@ -41,3 +41,5 @@ yarn-error.log*
 # Wails internal state files
 # -------------------------------
 *.md5
+
+problems.md
