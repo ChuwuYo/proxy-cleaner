@@ -115,7 +115,7 @@ wails dev
 项目提供了自动化构建脚本，可以自动更新版本信息并构建应用：
 
 ```powershell
-.\build.ps1 -Version "0.0.8"
+.\build.ps1 -Version "0.1.01"
 ```
 
 这个脚本会：

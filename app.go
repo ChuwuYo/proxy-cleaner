@@ -260,12 +260,18 @@ func (a *App) ResetWinsock() OperationResult {
 }
 
 // RestartDNSService 重启 DNS 客户端缓存服务
-// 优化错误处理逻辑，避免混淆的恢复操作
 func (a *App) RestartDNSService() OperationResult {
-	// 先检查服务是否在运行
+	// 检查服务状态
 	checkCmd := exec.Command("sc", "query", "dnscache")
 	checkCmd.SysProcAttr = &windows.SysProcAttr{HideWindow: true}
-	checkOutput, _ := checkCmd.CombinedOutput()
+	checkOutput, err := checkCmd.CombinedOutput()
+	if err != nil {
+		return OperationResult{
+			Success: false,
+			Message: i18n.GetMessage(i18n.ErrGeneric, fmt.Sprintf("无法查询DNS服务状态: %v", err)),
+		}
+	}
+
 	isRunning := strings.Contains(string(checkOutput), "RUNNING")
 
 	// 如果服务正在运行，先停止服务

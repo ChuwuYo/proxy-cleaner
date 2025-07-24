@@ -103,14 +103,14 @@
 
       <!-- 日志区域 -->
       <n-card :title="$t('logs.title')">
-        <n-log :log="logText" :rows="10" />
+        <n-log ref="logRef" :log="logText" :rows="10" />
       </n-card>
     </n-space>
   </div>
 </template>
 
 <script setup>
-import { ref, onMounted, reactive, computed, watch } from 'vue';
+import { ref, onMounted, reactive, computed, watch, nextTick } from 'vue';
 import { useI18n } from 'vue-i18n';
 import {
   useMessage, NSpace, NCard, NButton, NGrid, NGi,
@@ -127,6 +127,7 @@ const { t, locale } = useI18n();
 const logs = ref([]);
 const status = reactive({ enabled: false, server: '', error: '', isUnknown: false });
 const logText = computed(() => logs.value.join('\n'));
+const logRef = ref(null);
 const currentLocale = computed(() => locale.value);
 
 // 连通性测试相关状态
@@ -156,6 +157,13 @@ onMounted(async () => {
 const addLog = (msg) => {
   const timestamp = new Date().toLocaleTimeString();
   logs.value.push(`[${timestamp}] ${msg}`);
+  
+  // 直接在添加日志后触发滚动到底部
+  nextTick(() => {
+    if (logRef.value) {
+      logRef.value.scrollToBottom();
+    }
+  });
 };
 
 const refreshStatus = async () => {
@@ -266,8 +274,5 @@ const getCurrentIP = async () => {
     message.error(errorMsg);
   }
 };
-
-</script>
-
 
 
