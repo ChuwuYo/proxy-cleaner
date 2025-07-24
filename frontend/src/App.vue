@@ -275,16 +275,4 @@ const getCurrentIP = async () => {
   }
 };
 
-// 使用 nextTick 确保 DOM 更新后再滚动
-watch(logs, () => {
-  nextTick(() => {
-    if (logRef.value) {
-      logRef.value.scrollToBottom();
-    }
-  });
-});
-
-</script>
-
-
 
