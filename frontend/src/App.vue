@@ -261,9 +261,20 @@ const getCurrentIP = async () => {
     const result = await GetCurrentIP();
     addLog(result.message);
     if (result.success) {
-      // 从消息中提取IP地址
-      const ip = result.message.split(': ')[1];
-      currentIP.value = ip;
+      // 现在直接使用result.data中的IP地址
+      // 如果data不存在，则从message中提取
+      if (result.data) {
+        currentIP.value = result.data;
+      } else {
+        // 备用方案：从消息中提取IP地址
+        const ipRegex = /(\d{1,3}\.){3}\d{1,3}/;
+        const match = result.message.match(ipRegex);
+        if (match) {
+          currentIP.value = match[0];
+        } else {
+          currentIP.value = result.message;
+        }
+      }
       message.success(t('logs.ipUpdated'));
     } else {
       message.error(result.message);

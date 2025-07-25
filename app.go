@@ -124,6 +124,7 @@ type ProxyStatus struct {
 type OperationResult struct {
 	Success bool   `json:"success"`
 	Message string `json:"message"`
+	Data    interface{} `json:"data,omitempty"`
 }
 
 const regKeyPath = `Software\Microsoft\Windows\CurrentVersion\Internet Settings`
@@ -356,11 +357,12 @@ func (a *App) GetCurrentIP() OperationResult {
 			return OperationResult{
 				Success: true,
 				Message: i18n.GetMessage(i18n.SuccessGetCurrentIP, ip),
+				Data:    ip,
 			}
 		}
 	}
 	
-	// 如果第一个API失败，尝试使用 ip-api.com 作为备用API (使用HTTPS)
+	// 如果第一个API失败，尝试使用 ip-api.com 作为备用API (使用HTTP)
 	resp, err = client.Get(SecondaryIPAPI)
 	if err != nil {
 		return OperationResult{
@@ -394,6 +396,7 @@ func (a *App) GetCurrentIP() OperationResult {
 	return OperationResult{
 		Success: true,
 		Message: i18n.GetMessage(i18n.SuccessGetCurrentIP, result.Query),
+		Data:    result.Query,
 	}
 }
 

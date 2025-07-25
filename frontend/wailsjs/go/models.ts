@@ -19,6 +19,7 @@ export namespace main {
 	export class OperationResult {
 	    success: boolean;
 	    message: string;
+	    data?: any;
 	
 	    static createFrom(source: any = {}) {
 	        return new OperationResult(source);
@@ -28,6 +29,7 @@ export namespace main {
 	        if ('string' === typeof source) source = JSON.parse(source);
 	        this.success = source["success"];
 	        this.message = source["message"];
+	        this.data = source["data"];
 	    }
 	}
 	export class ProxyStatus {
