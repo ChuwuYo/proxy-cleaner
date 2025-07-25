@@ -261,8 +261,7 @@ const getCurrentIP = async () => {
     const result = await GetCurrentIP();
     addLog(result.message);
     if (result.success) {
-      // 现在直接使用result.data中的IP地址
-      // 如果data不存在，则从message中提取
+      // 优先使用result.data中的纯净IP地址
       if (result.data) {
         currentIP.value = result.data;
       } else {
@@ -272,14 +271,19 @@ const getCurrentIP = async () => {
         if (match) {
           currentIP.value = match[0];
         } else {
-          currentIP.value = result.message;
+          // 如果无法提取IP地址，显示占位符
+          currentIP.value = t('status.notSet');
         }
       }
       message.success(t('logs.ipUpdated'));
     } else {
+      // 操作失败时也显示占位符
+      currentIP.value = t('status.notSet');
       message.error(result.message);
     }
   } catch (e) {
+    // 发生异常时也显示占位符
+    currentIP.value = t('status.notSet');
     const errorMsg = t('logs.backendError', { msg: e });
     addLog(errorMsg);
     message.error(errorMsg);

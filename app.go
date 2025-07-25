@@ -138,7 +138,7 @@ func (a *App) GetProxyStatus() ProxyStatus {
 	}
 	defer key.Close()
 
-	// 读取代理启用状态，统一错误处理策略
+	// 读取代理启用状态
 	proxyEnable, _, err := key.GetIntegerValue("ProxyEnable")
 	if err != nil && err != registry.ErrNotExist {
 		return ProxyStatus{Error: i18n.GetMessage(i18n.ErrReadProxyEnable, err.Error())}
@@ -147,7 +147,7 @@ func (a *App) GetProxyStatus() ProxyStatus {
 		proxyEnable = 0
 	}
 
-	// 读取代理服务器地址，统一错误处理策略
+	// 读取代理服务器地址
 	proxyServer, _, err := key.GetStringValue("ProxyServer")
 	if err != nil && err != registry.ErrNotExist {
 		return ProxyStatus{Error: i18n.GetMessage(i18n.ErrReadProxyServer, err.Error())}
