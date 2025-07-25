@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"io"
+	"net"
 	"net/http"
 	"net/url"
 	"os/exec"
@@ -354,11 +355,15 @@ func (a *App) GetCurrentIP() OperationResult {
 		
 		if readErr == nil {
 			ip := strings.TrimSpace(string(body))
-			return OperationResult{
-				Success: true,
-				Message: i18n.GetMessage(i18n.SuccessGetCurrentIP, ip),
-				Data:    ip,
+			// 验证返回的是否为有效的IP地址
+			if net.ParseIP(ip) != nil {
+				return OperationResult{
+					Success: true,
+					Message: i18n.GetMessage(i18n.SuccessGetCurrentIP, ip),
+					Data:    ip,
+				}
 			}
+			// 如果不是有效的IP地址，将继续尝试备用API
 		}
 	}
 	
