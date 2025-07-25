@@ -21,7 +21,7 @@ import (
 // IP检测API常量定义
 const (
 	PrimaryIPAPI   = "https://myip.addr.tools/"
-	SecondaryIPAPI = "https://ip-api.com/json/"
+	SecondaryIPAPI = "http://ip-api.com/json/"
 	APIStatusSuccess = "success"
 )
 
