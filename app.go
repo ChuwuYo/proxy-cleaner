@@ -2,6 +2,7 @@ package main
 
 import (
 	"context"
+	"encoding/json"
 	"fmt"
 	"io"
 	"net/http"
@@ -318,7 +319,22 @@ func (a *App) GetCurrentIP() OperationResult {
 		Transport: transport,
 	}
 	
+	// 首先尝试使用 myip.addr.tools API
 	resp, err := client.Get("https://myip.addr.tools/")
+	if err == nil {
+		defer resp.Body.Close()
+		body, err := io.ReadAll(resp.Body)
+		if err == nil {
+			ip := strings.TrimSpace(string(body))
+			return OperationResult{
+				Success: true,
+				Message: i18n.GetMessage(i18n.SuccessGetCurrentIP, ip),
+			}
+		}
+	}
+	
+	// 如果第一个API失败，尝试使用 ip-api.com 作为备用API
+	resp, err = client.Get("http://ip-api.com/json/")
 	if err != nil {
 		return OperationResult{
 			Success: false,
@@ -335,12 +351,26 @@ func (a *App) GetCurrentIP() OperationResult {
 		}
 	}
 	
-	ip := strings.TrimSpace(string(body))
+	// 解析 ip-api.com 的JSON响应
+	var result struct {
+		Query  string `json:"query"`
+		Status string `json:"status"`
+	}
+	
+	err = json.Unmarshal(body, &result)
+	if err != nil || result.Status != "success" {
+		return OperationResult{
+			Success: false,
+			Message: i18n.GetMessage(i18n.ErrGetCurrentIP, "Failed to parse IP API response"),
+		}
+	}
+	
 	return OperationResult{
 		Success: true,
-		Message: i18n.GetMessage(i18n.SuccessGetCurrentIP, ip),
+		Message: i18n.GetMessage(i18n.SuccessGetCurrentIP, result.Query),
 	}
 }
+
 
 // PingTest 执行ping连通性测试
 func (a *App) PingTest(host string) OperationResult {
