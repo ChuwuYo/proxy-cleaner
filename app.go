@@ -2,6 +2,7 @@ package main
 
 import (
 	"context"
+	"encoding/json"
 	"fmt"
 	"io"
 	"net/http"
@@ -16,6 +17,31 @@ import (
 
 	"proxy-cleaner/backend/i18n"
 )
+
+// IP检测API常量定义
+const (
+	PrimaryIPAPI   = "https://myip.addr.tools/"
+	SecondaryIPAPI = "https://ip-api.com/json/"
+	APIStatusSuccess = "success"
+)
+
+// IPAPIResponse 代表从 ip-api.com 返回的JSON响应结构
+type IPAPIResponse struct {
+	Query       string `json:"query"`
+	Status      string `json:"status"`
+	Country     string `json:"country,omitempty"`
+	CountryCode string `json:"countryCode,omitempty"`
+	Region      string `json:"region,omitempty"`
+	RegionName  string `json:"regionName,omitempty"`
+	City        string `json:"city,omitempty"`
+	Zip         string `json:"zip,omitempty"`
+	Lat         float64 `json:"lat,omitempty"`
+	Lon         float64 `json:"lon,omitempty"`
+	Timezone    string `json:"timezone,omitempty"`
+	ISP         string `json:"isp,omitempty"`
+	Org         string `json:"org,omitempty"`
+	AS          string `json:"as,omitempty"`
+}
 
 // 检查当前进程是否具有管理员权限
 func isAdmin() bool {
@@ -318,16 +344,35 @@ func (a *App) GetCurrentIP() OperationResult {
 		Transport: transport,
 	}
 	
-	resp, err := client.Get("https://myip.addr.tools/")
+	// 首先尝试使用 myip.addr.tools API
+	resp, err := client.Get(PrimaryIPAPI)
+	if err == nil {
+		// 确保在读取响应后立即关闭，防止资源泄漏
+		body, readErr := io.ReadAll(resp.Body)
+		resp.Body.Close()
+		
+		if readErr == nil {
+			ip := strings.TrimSpace(string(body))
+			return OperationResult{
+				Success: true,
+				Message: i18n.GetMessage(i18n.SuccessGetCurrentIP, ip),
+			}
+		}
+	}
+	
+	// 如果第一个API失败，尝试使用 ip-api.com 作为备用API (使用HTTPS)
+	resp, err = client.Get(SecondaryIPAPI)
 	if err != nil {
 		return OperationResult{
 			Success: false,
 			Message: i18n.GetMessage(i18n.ErrGetCurrentIP, err.Error()),
 		}
 	}
-	defer resp.Body.Close()
 	
+	// 确保在读取响应后立即关闭，防止资源泄漏
 	body, err := io.ReadAll(resp.Body)
+	resp.Body.Close()
+	
 	if err != nil {
 		return OperationResult{
 			Success: false,
@@ -335,12 +380,23 @@ func (a *App) GetCurrentIP() OperationResult {
 		}
 	}
 	
-	ip := strings.TrimSpace(string(body))
+	// 解析 ip-api.com 的JSON响应
+	var result IPAPIResponse
+	
+	err = json.Unmarshal(body, &result)
+	if err != nil || result.Status != APIStatusSuccess {
+		return OperationResult{
+			Success: false,
+			Message: i18n.GetMessage(i18n.ErrParseIPAPI),
+		}
+	}
+	
 	return OperationResult{
 		Success: true,
-		Message: i18n.GetMessage(i18n.SuccessGetCurrentIP, ip),
+		Message: i18n.GetMessage(i18n.SuccessGetCurrentIP, result.Query),
 	}
 }
+
 
 // PingTest 执行ping连通性测试
 func (a *App) PingTest(host string) OperationResult {

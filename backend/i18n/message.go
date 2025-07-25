@@ -24,6 +24,7 @@ const (
 	ErrPingTest         MessageKey = "err_ping_test"
 	ErrPingFailed       MessageKey = "err_ping_failed"
 	ErrGetCurrentIP     MessageKey = "err_get_current_ip"
+	ErrParseIPAPI       MessageKey = "err_parse_ipapi"
 	ErrBasicNetworkFix  MessageKey = "err_basic_network_fix"
 	ErrReleaseIP        MessageKey = "err_release_ip"
 	ErrRenewIP          MessageKey = "err_renew_ip"
@@ -62,6 +63,7 @@ var messages = map[string]map[MessageKey]string{
 		ErrPingTest:          "Ping测试执行失败 %s: %v",
 		ErrPingFailed:        "Ping测试失败: 无法连接到 %s",
 		ErrGetCurrentIP:      "获取当前IP地址失败: %v",
+		ErrParseIPAPI:        "解析IP API响应失败",
 		ErrBasicNetworkFix:   "基础网络修复时出错: %v",
 		ErrReleaseIP:         "释放IP地址时出错: %v\n输出: %s",
 		ErrRenewIP:           "重新获取IP地址时出错: %v\n输出: %s",
@@ -78,6 +80,7 @@ var messages = map[string]map[MessageKey]string{
 		SuccessPingTest:       "成功: 网络连通性正常，可以访问 %s",
 		SuccessPingTestWithDelay: "成功: 网络连通性正常，可以访问 %s，延迟: %s",
 		SuccessGetCurrentIP:   "当前IP地址: %s",
+		SuccessBasicNetworkFix: "成功: 基础网络修复完成",
 		SuccessReleaseRenewIP: "成功: IP地址已释放并重新获取",
 		SuccessResetFirewall:  "成功: 防火墙设置已重置为默认状态",
 	},
@@ -96,6 +99,7 @@ var messages = map[string]map[MessageKey]string{
 		ErrPingTest:          "Ping test execution failed %s: %v",
 		ErrPingFailed:        "Ping test failed: Cannot connect to %s",
 		ErrGetCurrentIP:      "Failed to get current IP address: %v",
+		ErrParseIPAPI:        "Failed to parse IP API response",
 		ErrBasicNetworkFix:   "Error during basic network fix: %v",
 		ErrReleaseIP:         "Error releasing IP address: %v\nOutput: %s",
 		ErrRenewIP:           "Error renewing IP address: %v\nOutput: %s",
@@ -112,6 +116,7 @@ var messages = map[string]map[MessageKey]string{
 		SuccessPingTest:       "Success: Network connectivity is normal, can access %s",
 		SuccessPingTestWithDelay: "Success: Network connectivity is normal, can access %s, delay: %s",
 		SuccessGetCurrentIP:   "Current IP address: %s",
+		SuccessBasicNetworkFix: "Success: Basic network fix completed",
 		SuccessReleaseRenewIP: "Success: IP address released and renewed",
 		SuccessResetFirewall:  "Success: Firewall settings reset to default",
 	},
