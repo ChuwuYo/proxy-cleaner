@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"io"
+	"net"
 	"net/http"
 	"net/url"
 	"os/exec"
@@ -21,7 +22,7 @@ import (
 // IP检测API常量定义
 const (
 	PrimaryIPAPI   = "https://myip.addr.tools/"
-	SecondaryIPAPI = "https://ip-api.com/json/"
+	SecondaryIPAPI = "http://ip-api.com/json/"
 	APIStatusSuccess = "success"
 )
 
@@ -124,6 +125,7 @@ type ProxyStatus struct {
 type OperationResult struct {
 	Success bool   `json:"success"`
 	Message string `json:"message"`
+	Data    interface{} `json:"data,omitempty"`
 }
 
 const regKeyPath = `Software\Microsoft\Windows\CurrentVersion\Internet Settings`
@@ -136,7 +138,7 @@ func (a *App) GetProxyStatus() ProxyStatus {
 	}
 	defer key.Close()
 
-	// 读取代理启用状态，统一错误处理策略
+	// 读取代理启用状态
 	proxyEnable, _, err := key.GetIntegerValue("ProxyEnable")
 	if err != nil && err != registry.ErrNotExist {
 		return ProxyStatus{Error: i18n.GetMessage(i18n.ErrReadProxyEnable, err.Error())}
@@ -145,7 +147,7 @@ func (a *App) GetProxyStatus() ProxyStatus {
 		proxyEnable = 0
 	}
 
-	// 读取代理服务器地址，统一错误处理策略
+	// 读取代理服务器地址
 	proxyServer, _, err := key.GetStringValue("ProxyServer")
 	if err != nil && err != registry.ErrNotExist {
 		return ProxyStatus{Error: i18n.GetMessage(i18n.ErrReadProxyServer, err.Error())}
@@ -353,14 +355,19 @@ func (a *App) GetCurrentIP() OperationResult {
 		
 		if readErr == nil {
 			ip := strings.TrimSpace(string(body))
-			return OperationResult{
-				Success: true,
-				Message: i18n.GetMessage(i18n.SuccessGetCurrentIP, ip),
+			// 验证返回的是否为有效的IP地址
+			if net.ParseIP(ip) != nil {
+				return OperationResult{
+					Success: true,
+					Message: i18n.GetMessage(i18n.SuccessGetCurrentIP, ip),
+					Data:    ip,
+				}
 			}
+			// 如果不是有效的IP地址，将继续尝试备用API
 		}
 	}
 	
-	// 如果第一个API失败，尝试使用 ip-api.com 作为备用API (使用HTTPS)
+	// 如果第一个API失败，尝试使用 ip-api.com 作为备用API (使用HTTP)
 	resp, err = client.Get(SecondaryIPAPI)
 	if err != nil {
 		return OperationResult{
@@ -394,6 +401,7 @@ func (a *App) GetCurrentIP() OperationResult {
 	return OperationResult{
 		Success: true,
 		Message: i18n.GetMessage(i18n.SuccessGetCurrentIP, result.Query),
+		Data:    result.Query,
 	}
 }
 

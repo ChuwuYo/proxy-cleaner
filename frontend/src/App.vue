@@ -261,14 +261,29 @@ const getCurrentIP = async () => {
     const result = await GetCurrentIP();
     addLog(result.message);
     if (result.success) {
-      // 从消息中提取IP地址
-      const ip = result.message.split(': ')[1];
-      currentIP.value = ip;
+      // 优先使用result.data中的纯净IP地址
+      if (result.data) {
+        currentIP.value = result.data;
+      } else {
+        // 备用方案：从消息中提取IP地址
+        const ipRegex = /(\d{1,3}\.){3}\d{1,3}/;
+        const match = result.message.match(ipRegex);
+        if (match) {
+          currentIP.value = match[0];
+        } else {
+          // 如果无法提取IP地址，显示占位符
+          currentIP.value = t('status.notSet');
+        }
+      }
       message.success(t('logs.ipUpdated'));
     } else {
+      // 操作失败时也显示占位符
+      currentIP.value = t('status.notSet');
       message.error(result.message);
     }
   } catch (e) {
+    // 发生异常时也显示占位符
+    currentIP.value = t('status.notSet');
     const errorMsg = t('logs.backendError', { msg: e });
     addLog(errorMsg);
     message.error(errorMsg);

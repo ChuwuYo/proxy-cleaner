@@ -108,7 +108,7 @@ var messages = map[string]map[MessageKey]string{
 
 		SuccessDisableProxy:   "Success: System proxy disabled via direct registry modification",
 		SuccessDisableProxyPS: "Success: System proxy disabled via PowerShell command",
-		SuccessResetProxy:     "Success: System proxy reset",
+		SuccessResetProxy:     "Success: System proxy has been reset",
 		SuccessFlushDNS:       "Success: DNS cache cleared",
 		SuccessResetTCPIP:     "Success: TCP/IP stack reset (may require restart)",
 		SuccessResetWinsock:   "Success: Winsock protocol reset (may require restart)",
