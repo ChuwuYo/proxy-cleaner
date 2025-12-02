@@ -2,7 +2,7 @@ module proxy-cleaner
 
 go 1.23.0
 
-toolchain go1.24.3
+toolchain go1.25.5
 
 require github.com/wailsapp/wails/v2 v2.10.1
 
